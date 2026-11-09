@@ -100,8 +100,10 @@
   load snippet is in `.env.local.example` (`ansible-vault decrypt --output -` into a
   variable, then `source /dev/stdin`). `source <(ansible-vault view …)` did not work.
   `ansible.cfg` sets `scripts/vault-pass.sh` (macOS dialog) as the vault password client,
-  so `ansible-vault` also runs without a terminal. Left: whether scripts call the snippet
-  themselves or expect a pre-loaded shell. First
+  so `ansible-vault` also runs without a terminal. Decided (operator, 2026-11-09): scripts
+  expect the values already in the shell (loaded before starting Claude Code). They don't
+  decrypt the vault. A script with a missing required variable fails, naming the variable
+  (never a value) and pointing at the load snippet. First
   consumers: `OMLX_API_KEY` (smoke test), then the GHCR tokens.
 - **T-OPENCODE-07:** Depends on T-OPENCODE-05 passing and T-OPENCODE-06. Push the
   manifest list, record the digest in the image's catalogue entry, and pull by digest to
