@@ -1,0 +1,51 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "autoupdate": false,
+  "model": "omlx/Qwen3.5-9B-oQ4e-mtp",
+  "permission": {
+    "edit": {
+      "*": "allow",
+      "*test_*.py": "deny",
+      "*fixtures/*": "deny"
+    },
+    "bash": {
+      "*": "ask",
+      "ls *": "allow",
+      "cat *": "allow",
+      "head *": "allow",
+      "tail *": "allow",
+      "grep *": "allow",
+      "find *": "allow",
+      "python3 -m pytest *": "allow",
+      "pytest *": "allow",
+      "git status*": "allow",
+      "git diff*": "allow",
+      "git log*": "allow"
+    }
+  },
+  "provider": {
+    "omlx": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "oMLX (host)",
+      "options": {
+        "baseURL": "http://host.containers.internal:8000/v1",
+        "apiKey": "{env:OMLX_API_KEY}"
+      },
+      "models": {
+        "Qwen3.5-9B-oQ4e-mtp": {
+          "name": "qwen3.5 9b oq4e mtp 48k",
+          "limit": {
+            "context": 49152,
+            "output": 8192
+          },
+          "variants": {
+            "nothink": {
+              "reasoningEffort": "none"
+            }
+          }
+        }
+      }
+    }
+  },
+  "share": "disabled"
+}

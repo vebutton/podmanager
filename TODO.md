@@ -39,7 +39,7 @@
 
 ### OPENCODE — Track 1: OpenCode pipeline proof
 - [x] T-OPENCODE-01 Settle the repo layout, catalogue format and public/private split (resolved 2026-11-09: layout in requirements → Repo layout; gitignored `images-private/` + `catalogue.local.md`; `.conf` profiles; per-host `machines/local.env`; entry format in `catalogue.md`)
-- [ ] T-OPENCODE-02 Catalogue the existing OpenCode image and write its requirements record
+- [x] T-OPENCODE-02 Catalogue the existing OpenCode image and write its requirements record (resolved 2026-11-09: `images/opencode/` + catalogue entry; arm64 test build ran interactively against oMLX)
 - [ ] T-OPENCODE-03 Machine profile for OpenCode + machine-switch script
 - [ ] T-OPENCODE-04 Multi-arch build script (arm64 + amd64 manifest list)
 - [ ] T-OPENCODE-05 Run recipe and local smoke test for the OpenCode image
@@ -69,12 +69,6 @@
   one-machine rule. Low priority, not part of Track 1.
 
 ### OPENCODE
-- **T-OPENCODE-02:** Source project path is in `CLAUDE.local.md`. Config decisions are
-  made (requirements → Config decisions): bake local-only with the model reference fixed,
-  all-providers as a run-time override, Ollama configs dropped, model name and endpoint
-  baked in public. Left: write `images/opencode/`, and add
-  `"apiKey": "{env:OMLX_API_KEY}"` to the baked config so the key is no longer entered
-  by hand with `/connect` (requirements → Known gaps).
 - **T-OPENCODE-03:** From the source history: 2 CPU, 2 GiB, one host directory mounted
   to `/workspace`. The script must stop whatever machine is running, start the target and
   set it as the default connection. Replace the `cat | podman machine ssh` config

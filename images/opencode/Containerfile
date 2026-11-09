@@ -1,0 +1,26 @@
+# OpenCode harness. The model runs natively on the host (oMLX, Mac GPU); this
+# container only runs the harness and reaches the model server over HTTP.
+FROM docker.io/library/node:22-bookworm-slim
+
+LABEL org.opencontainers.image.source="https://github.com/vebutton/podmanager" \
+      org.opencontainers.image.description="OpenCode harness talking to a host-side oMLX model server"
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ripgrep ca-certificates python3 python3-pytest \
+    && rm -rf /var/lib/apt/lists/*
+
+# Pinned; bump deliberately after reading release notes.
+ARG OPENCODE_VERSION=1.19.0
+RUN npm install -g opencode-ai@${OPENCODE_VERSION}
+
+# Local-only config baked outside /workspace, so the agent cannot edit its own permissions.
+# Override at run time by mounting another config over this path (:ro,Z).
+COPY opencode.json /etc/opencode/opencode.json
+ENV OPENCODE_CONFIG=/etc/opencode/opencode.json
+
+# Writable home for any UID (run with --userns keep-id); OpenCode keeps cache/state here.
+RUN mkdir -p /home/agent && chmod 1777 /home/agent
+ENV HOME=/home/agent
+
+WORKDIR /workspace
+ENTRYPOINT ["opencode"]

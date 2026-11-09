@@ -121,9 +121,9 @@ both are gitignored. No code yet. Everything is pushed.
 **Next session — pick up here:**
 1. Cold start: re-read CLAUDE.md and CLAUDE.local.md.
 2. T-OPENCODE-01 is closed (2026-11-09): layout in requirements → Repo layout.
-3. T-OPENCODE-02: write `images/opencode/` with the fixed local-only config (provider
-   `omlx`, model `omlx/Qwen3.5-9B-oQ4e-mtp`, `apiKey: {env:OMLX_API_KEY}`). Model name and
-   endpoint are baked in public; the mount override stays (requirements → Config decisions).
+3. T-OPENCODE-02 is closed: `images/opencode/` written, arm64 test image
+   `localhost/podmanager-opencode:test` sits on the `opencode-lab` machine and ran
+   interactively. Next: T-OPENCODE-03 (machine profile + switch script).
 4. `.env.local` exists and is vault-encrypted in place. Load it with the snippet in
    `.env.local.example`, not `source <(ansible-vault view …)` (T-OPENCODE-06). Scripts
    expect the values already in the shell; Claude checks variable names only, never

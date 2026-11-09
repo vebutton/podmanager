@@ -15,6 +15,25 @@ Private entries go in the gitignored `catalogue.local.md`.
 - **Digest:** the manifest-list digest last published (published images only)
 - **Quirks to check:** anything surprising or unconfirmed
 
+## Images built here
+
+### opencode
+- **Status:** built here. arm64 test build (2026-11-09) ran interactively against the
+  host model; multi-arch build and scripted smoke test pending (T-OPENCODE-04/05).
+- **Location:** `images/opencode/`. Rebuilt from an existing image in another project
+  (path in `CLAUDE.local.md`), which stays as it is.
+- **What it is:** OpenCode coding-agent harness. Talks to a host-side oMLX model server;
+  the model does not run in the container. Local-only config baked, all-providers config
+  as a run-time override. Details: `images/opencode/requirements.md`.
+- **Build:** `node:22-bookworm-slim` base, `opencode-ai` pinned via build arg (1.19.0).
+  Multi-arch build script: T-OPENCODE-04.
+- **Machine:** 2 CPU, 2 GiB, workspace volume (profile: T-OPENCODE-03).
+- **Registry:** not published yet (T-OPENCODE-07).
+- **Digest:** none yet.
+- **Quirks to check:** config mounts need `Z`, or OpenCode silently falls back to a cloud
+  model. `host.containers.internal` doesn't resolve on OpenShift, so pods there always
+  need the config override.
+
 ## External images
 
 ### web-terminal
