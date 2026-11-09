@@ -31,7 +31,7 @@
 ## 1. Items
 
 ### PROJ — Project and repo plumbing
-- [ ] T-PROJ-01 Create the public GitHub repo
+- [x] T-PROJ-01 Create the public GitHub repo (resolved 2026-11-08: github.com/vebutton/podmanager, public)
 - [ ] T-PROJ-02 Survey and catalogue the S3 validator image (customer-facing)
 - [ ] T-PROJ-03 Survey and catalogue the DR-product hook containers scattered across other projects
 - [ ] T-PROJ-04 Record the sandbox project's container requirements once it hands them over
@@ -53,8 +53,6 @@
 ## 2. Item detail
 
 ### PROJ
-- **T-PROJ-01:** Repo is public. Check for a scrub before the first push: no host paths
-  with the username, no internal names. Visibility is already decided as public.
 - **T-PROJ-02:** Path not yet known (ask the operator). Read-only survey: where it lives,
   how it builds today, any intricacies of its own build. Write a catalogue entry. It's the
   first customer-facing image, so it is the likely first real handoff package (§3

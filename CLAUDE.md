@@ -112,14 +112,13 @@ question (TODO.md §3).
 > Forward-looking operating context only. Archaeology lives in `docs/session-state.md`.
 > Task state lives in `TODO.md`.
 
-**Last:** Project defined. Requirements, task register and tracks are written. No code yet.
+**Last:** Project defined and the public repo is created. Requirements, task register and tracks are written. No code yet.
 
 **Next session — pick up here:**
 1. Cold start: re-read CLAUDE.md and CLAUDE.local.md.
-2. T-PROJ-01: create the public repo, if that hasn't happened yet.
-3. T-OPENCODE-01: settle the repo layout and the public/private split. Every later item
+2. T-OPENCODE-01: settle the repo layout and the public/private split. Every later item
    writes into this layout.
-4. T-OPENCODE-02: recover the missing OpenCode config (broken symlink in the source
+3. T-OPENCODE-02: recover the missing OpenCode config (broken symlink in the source
    project) before anything can build.
 
 **Continuity reminders:**
