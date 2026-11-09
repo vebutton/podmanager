@@ -74,6 +74,10 @@ scripts underneath do the work, and they double as the plain CLI recipes.
 - Be direct and concise. Ask questions in batches.
 - Before doing something non-trivial, say briefly why.
 - Confirm before anything destructive, e.g. `podman machine rm` or image prune.
+- **Triage sheets (`reminders/`) always cover the catalogue and the handoff.** Every new
+  or updated sheet includes the state of `catalogue.md` (entries, what's pending) and of
+  the handoff: the request file other projects use to ask for a machine and image
+  (T-PROJ-06) and the engineering handoff package for customer-facing images (`output/`).
 - Commit with `git commit -F <file>`. Never amend, never `--no-verify`.
 - **Git identity:** this repo uses a repo-local identity that differs from the global git
   config. See `CLAUDE.local.md` → Git / GitHub identity, and verify it before every
