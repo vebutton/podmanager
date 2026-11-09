@@ -121,9 +121,9 @@ both are gitignored. No code yet. Everything is pushed.
 **Next session — pick up here:**
 1. Cold start: re-read CLAUDE.md and CLAUDE.local.md.
 2. T-OPENCODE-01 is closed (2026-11-09): layout in requirements → Repo layout.
-3. T-OPENCODE-02 is closed: `images/opencode/` written, arm64 test image
-   `localhost/podmanager-opencode:test` sits on the `opencode-lab` machine and ran
-   interactively. Next: T-OPENCODE-03 (machine profile + switch script).
+3. T-OPENCODE-02/03 closed. Machine `opencode` (from `machines/opencode.conf`) is running
+   with test image `localhost/podmanager-opencode:test`. Hand-made `opencode-lab` is
+   stopped, kept as fallback. Next: T-OPENCODE-04 (multi-arch build script).
 4. `.env.local` exists and is vault-encrypted in place. Load it with the snippet in
    `.env.local.example`, not `source <(ansible-vault view …)` (T-OPENCODE-06). Scripts
    expect the values already in the shell; Claude checks variable names only, never
@@ -143,9 +143,12 @@ both are gitignored. No code yet. Everything is pushed.
 - podmanager runs on both Apple Silicon hosts, not only this one.
 - Refresh `.atlas/overview.md` at end of session when the project moved. Two markers are
   open there, both waiting on T-OPENCODE-05/07.
-- Containers mount OpenCode config `:ro,Z`. Without `Z` the config is corrupted and
-  OpenCode silently falls back to a cloud model. The smoke test must check which model is
-  actually in use.
+- OpenCode config overrides come from the `/config` machine volume, mounted `:ro` **without**
+  `Z` (`Z` fails on the read-only share; only files on the VM's own disk need it). An
+  unreadable config makes OpenCode silently fall back to a cloud model, so the smoke test
+  must check which model is actually in use.
+- applehv ignores `:ro` on machine volumes. Start machines with
+  `scripts/machine-switch.sh <profile>`, which remounts them read-only.
 - The OpenCode image runs with `--userns keep-id`. Its home is a world-writable
   `/home/agent`, and its config is baked at `/etc/opencode`, outside `/workspace`, so the
   agent can't edit its own permissions.

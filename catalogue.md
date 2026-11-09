@@ -27,11 +27,12 @@ Private entries go in the gitignored `catalogue.local.md`.
   as a run-time override. Details: `images/opencode/requirements.md`.
 - **Build:** `node:22-bookworm-slim` base, `opencode-ai` pinned via build arg (1.19.0).
   Multi-arch build script: T-OPENCODE-04.
-- **Machine:** 2 CPU, 2 GiB, workspace volume (profile: T-OPENCODE-03).
+- **Machine:** `machines/opencode.conf` (machine `opencode`: 2 CPU, 2 GiB, `/workspace`
+  rw, `/config` ro).
 - **Registry:** not published yet (T-OPENCODE-07).
 - **Digest:** none yet.
-- **Quirks to check:** config mounts need `Z`, or OpenCode silently falls back to a cloud
-  model. `host.containers.internal` doesn't resolve on OpenShift, so pods there always
+- **Quirks to check:** an unreadable config makes OpenCode silently fall back to a cloud
+  model. Overrides from `/config` mount `:ro` without `Z` (`Z` fails on the share). `host.containers.internal` doesn't resolve on OpenShift, so pods there always
   need the config override.
 
 ## External images

@@ -26,6 +26,20 @@ here. Internal names, hosts and paths live in `CLAUDE.local.md`.
   starting the target and setting it as the default connection.
 - Profiles must not commit host paths that contain the username. Resolve host paths from a
   gitignored local file or from variables.
+- **Machine volumes (settled 2026-11-09, T-OPENCODE-03).** Fixed at `podman machine init`;
+  changing them means recreating the machine. Conventional targets in the VM:
+  - `/workspace`: per-project workspace, writable.
+  - `/config`: run-time config overrides from the repo (`images/<name>/overrides/`),
+    read-only.
+  - `/shared`: one fixed shared volume (`PODMANAGER_SHARED`, outside the repo), writable,
+    opt-in per profile (`SHARED=true`). For staging material between machines, e.g. the
+    sandbox machine copies directories in, scans them and wipes them afterwards.
+- **applehv ignores `:ro` on machine volumes** (virtiofs mounts rw). `machine-switch.sh`
+  remounts `:ro` targets read-only in the VM after start. A machine started outside the
+  script has them writable until the next switch.
+- **Config files from a machine volume mount `:ro` without `Z`.** virtiofs shares carry a
+  fixed `nfs_t` label that containers can read; `Z` fails because the share is read-only.
+  `Z` is only needed for files on the VM's own disk (the old `cat | ssh` copies).
 - Several machines may exist. Different purposes have different requirements (e.g. a
   locked-down sandbox machine vs a larger lab machine).
 
@@ -129,18 +143,19 @@ already exist).
 - Machine profile matches today's (2 CPU, 2 GiB, workspace volume), declared in
   `machines/`.
 - Multi-arch manifest list (arm64 + amd64).
-- Replace the `cat | ssh` config copy with a declared mechanism, e.g. a config directory
-  mounted through a machine volume.
+- Replace the `cat | ssh` config copy with a declared mechanism: done, overrides come from
+  the `/config` machine volume (T-OPENCODE-03).
 - Smoke test checks: startup under keep-id, mount modes, model endpoint reachability, and
-  that **the configured model is the model in use**. Without `Z` the config is corrupted
-  and OpenCode silently falls back to a cloud model.
+  that **the configured model is the model in use**. A config the container can't read
+  makes OpenCode silently fall back to a cloud model.
 - Then push to GHCR by digest and verify a pull by digest.
 - Produce the plain CLI recipe for the whole flow.
 
 ### Config decisions (2026-11-08)
 - **Baked default: the local-only config** (OpenCode's own cloud provider disabled), so
   the image can't reach a cloud model by accident. The all-providers config becomes a
-  run-time override mounted `:ro,Z` over `/etc/opencode/opencode.json`.
+  run-time override mounted over `/etc/opencode/opencode.json` (from `/config`: `:ro`, no
+  `Z`).
 - **Fix the model reference.** Both source configs set `"model"` to a name that their
   host-named provider doesn't define, and not in OpenCode's `provider/model` form. Rename
   the provider to the generic `omlx` and use `omlx/Qwen3.5-9B-oQ4e-mtp`.

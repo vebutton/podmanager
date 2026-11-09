@@ -40,12 +40,13 @@
 ### OPENCODE — Track 1: OpenCode pipeline proof
 - [x] T-OPENCODE-01 Settle the repo layout, catalogue format and public/private split (resolved 2026-11-09: layout in requirements → Repo layout; gitignored `images-private/` + `catalogue.local.md`; `.conf` profiles; per-host `machines/local.env`; entry format in `catalogue.md`)
 - [x] T-OPENCODE-02 Catalogue the existing OpenCode image and write its requirements record (resolved 2026-11-09: `images/opencode/` + catalogue entry; arm64 test build ran interactively against oMLX)
-- [ ] T-OPENCODE-03 Machine profile for OpenCode + machine-switch script
+- [x] T-OPENCODE-03 Machine profile for OpenCode + machine-switch script (resolved 2026-11-09: `machines/opencode.conf`, `scripts/machine-switch.sh`; machine `opencode` created and running; overrides via `/config` volume)
 - [ ] T-OPENCODE-04 Multi-arch build script (arm64 + amd64 manifest list)
 - [ ] T-OPENCODE-05 Run recipe and local smoke test for the OpenCode image
 - [ ] T-OPENCODE-06 Secrets loader from the Ansible Vault env file
 - [ ] T-OPENCODE-07 Push to GHCR by digest and verify pull
 - [ ] T-OPENCODE-08 Plain CLI recipe for non-Claude users
+- [ ] T-OPENCODE-09 Remove the hand-made `opencode-lab` machine
 
 ### SANDBOX — Track 2: Claude Code sandbox image
 - [ ] T-SANDBOX-01 Decide whether the Claude Code image is built here or in the sandbox project
@@ -69,10 +70,6 @@
   one-machine rule. Low priority, not part of Track 1.
 
 ### OPENCODE
-- **T-OPENCODE-03:** From the source history: 2 CPU, 2 GiB, one host directory mounted
-  to `/workspace`. The script must stop whatever machine is running, start the target and
-  set it as the default connection. Replace the `cat | podman machine ssh` config
-  injection with a mounted config directory or a profile-declared volume.
 - **T-OPENCODE-04:** `podman build --platform linux/arm64,linux/amd64 --manifest`.
   Confirm `opencode-ai` installs under amd64 emulation (npm package with per-platform
   binaries). Keep the version pin (`opencode-ai@1.19.0` today).
@@ -81,8 +78,9 @@
   - `/workspace` is writable and the declared files are read-only
   - the host model endpoint is reachable, with the key from `-e OMLX_API_KEY` (no
     `/connect`)
-  - **the configured model is the one actually in use**: the missing-`Z` failure falls
-    back to a cloud model silently
+  - **the configured model is the one actually in use**: a config the container can't
+    read falls back to a cloud model silently
+  - an override from `/config` (`:ro`, no `Z`) is the config actually loaded
 
   Run the amd64 variant under emulation at least once.
 - **T-OPENCODE-06:** Variable names and format are set in `.env.local.example`
@@ -101,6 +99,10 @@
   image's namespace and package visibility.
 - **T-OPENCODE-08:** The same steps as the scripts, written out as copy-paste commands.
   This is the input for the operator's Confluence-article skill.
+- **T-OPENCODE-09:** Waits on T-OPENCODE-05 passing on the `opencode` machine. Until then
+  `opencode-lab` stays stopped as a fallback. `podman machine rm` only with the operator's
+  explicit OK. Its workspace is a host folder (shared with `opencode`), so it survives the
+  removal; the VM's own files and images do not.
 
 ### SANDBOX
 - **T-SANDBOX-01:** Resolves §3 question on where the Claude Code image lives. If it's

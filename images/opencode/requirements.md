@@ -30,9 +30,10 @@ podmanager pipeline (Track 1).
 - **Permissions:** edits allowed except `*test_*.py` and `*fixtures/*`; bash asks by
   default, with read-only commands, pytest and read-only git allowlisted. Autoupdate off,
   sharing disabled.
-- **Run-time override:** mount another config over `/etc/opencode/opencode.json` with
-  `:ro,Z`. `overrides/opencode-any.json` is the all-providers variant (identical except
-  the cloud provider stays enabled).
+- **Run-time override:** mount another config over `/etc/opencode/opencode.json`, e.g.
+  `-v /config/opencode-any.json:/etc/opencode/opencode.json:ro`.
+  `overrides/opencode-any.json` is the all-providers variant (identical except the cloud
+  provider stays enabled).
 - **OpenShift:** `host.containers.internal` only resolves under Podman on the Mac, so a
   pod in the OpenShift lab always mounts its own config at the same path.
 
@@ -40,12 +41,15 @@ podmanager pipeline (Track 1).
 - `--userns keep-id`.
 - `/workspace` mounted writable; task-specific test files and fixtures mounted read-only
   on top of it.
-- Config mounts need `Z`. Without it the config is unreadable and OpenCode silently
-  falls back to a cloud model.
+- Config overrides from `/config` (a machine volume) mount `:ro` without `Z`; `Z` fails
+  there. A file on the VM's own disk would need `Z`. Either way, a config the container
+  can't read makes OpenCode silently fall back to a cloud model.
 - Interactive (`-it`), ephemeral (`--rm`).
 
 ## Machine
-Profile: 2 CPU, 2 GiB, one host directory shared as `/workspace` (T-OPENCODE-03).
+Profile `machines/opencode.conf`: machine `opencode`, 2 CPU, 2 GiB, 100 GiB disk, rootless.
+Volumes: host workspace → `/workspace` (rw), `images/opencode/overrides/` → `/config`
+(ro). No `/shared`. Switch with `scripts/machine-switch.sh opencode`.
 
 ## Acceptance (smoke test, T-OPENCODE-05)
 - Starts under `--userns keep-id`.
