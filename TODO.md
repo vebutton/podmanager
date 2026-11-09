@@ -102,8 +102,8 @@
   GHCR tokens.
 - **T-OPENCODE-07:** Depends on T-OPENCODE-05 passing and T-OPENCODE-06. Push the
   manifest list, record the digest in the image's catalogue entry, and pull by digest to
-  verify (ideally from the OpenShift lab). Confirm the GHCR namespace and package
-  visibility.
+  verify (ideally from the OpenShift lab). GHCR namespaces differ per image, so set this
+  image's namespace and package visibility.
 - **T-OPENCODE-08:** The same steps as the scripts, written out as copy-paste commands.
   This is the input for the operator's Confluence-article skill.
 

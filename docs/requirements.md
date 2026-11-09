@@ -47,7 +47,8 @@ here. Internal names, hosts and paths live in `CLAUDE.local.md`.
 ### Publish
 - Most images go to **GHCR, pinned by digest**, so the OpenShift lab (x86) can pull them
   directly. Some stay local-only.
-- Record the published digest in the image's catalogue entry.
+- The GHCR namespace is set per image; there is no single project namespace.
+- Record the published namespace and digest in the image's catalogue entry.
 - Signing comes later (TODO.md §5).
 
 ### Secrets (hard rule)

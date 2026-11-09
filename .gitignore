@@ -43,3 +43,6 @@ temp/
 *-conversation.md
 CLAUDE.local.md
 learnings.md
+
+# Generated triage reminder sheets — local only
+reminders/
