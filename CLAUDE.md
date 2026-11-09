@@ -112,16 +112,29 @@ question (TODO.md §3).
 > Forward-looking operating context only. Archaeology lives in `docs/session-state.md`.
 > Task state lives in `TODO.md`.
 
-**Last:** Project defined and the public repo is created. Requirements, task register and tracks are written. No code yet.
+**Last (2026-11-08):** Surveyed the existing OpenCode image and the `opencode-lab` VM.
+Config decisions recorded (requirements → Config decisions). Added `.env.local.example`,
+a first `catalogue.md` entry (web-terminal), and T-PROJ-05. No code yet.
 
 **Next session — pick up here:**
 1. Cold start: re-read CLAUDE.md and CLAUDE.local.md.
-2. T-OPENCODE-01: settle the repo layout and the public/private split. Every later item
-   writes into this layout.
-3. T-OPENCODE-02: recover the missing OpenCode config (broken symlink in the source
-   project) before anything can build.
+2. T-OPENCODE-01: settle the repo layout and the public/private split. `catalogue.md`
+   already exists at the root, so the layout should keep it there or move it deliberately.
+3. T-OPENCODE-02: write `images/opencode/` with the fixed local-only config (provider
+   `omlx`, model `omlx/Qwen3.5-9B-oQ4e-mtp`, `apiKey: {env:OMLX_API_KEY}`). Still open:
+   do the model name and host endpoint go public or get parameterised?
+4. The operator still needs to create `.env.local` from the template. The vault location
+   is still unknown (T-OPENCODE-06).
 
 **Continuity reminders:**
+- Secrets template format is `export KEY="value"` only. Pass secrets to containers with
+  `-e NAME`, never `--env-file` (podman keeps the quotes as part of the value).
+- Don't set `GITHUB_TOKEN` in this repo: it overrides the `vebutton` keyring login for `gh`.
+- The existing local `opencode-lab:1.19.0` image bakes an old Ollama config. It only
+  works because a config is mounted over it at run time. Don't use it as a reference for
+  the config.
+- `podman-machine-default` probably runs web-terminal. Leave it alone until T-PROJ-05.
+- The oMLX model is shared with another project. Keep smoke-test prompts small.
 - Containers mount OpenCode config `:ro,Z`. Without `Z` the config is corrupted and
   OpenCode silently falls back to a cloud model. The smoke test must check which model is
   actually in use.
