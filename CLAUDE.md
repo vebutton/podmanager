@@ -125,8 +125,8 @@ both are gitignored. No code yet. Everything is pushed.
 3. T-OPENCODE-02: write `images/opencode/` with the fixed local-only config (provider
    `omlx`, model `omlx/Qwen3.5-9B-oQ4e-mtp`, `apiKey: {env:OMLX_API_KEY}`). Still open:
    do the model name and host endpoint go public or get parameterised?
-4. The operator still needs to create `.env.local` from the template. The vault location
-   is still unknown (T-OPENCODE-06).
+4. `.env.local` exists and is vault-encrypted in place. Load it with the snippet in
+   `.env.local.example`, not `source <(ansible-vault view …)` (T-OPENCODE-06).
 
 **Continuity reminders:**
 - Secrets template format is `export KEY="value"` only. Pass secrets to containers with

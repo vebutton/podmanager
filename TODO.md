@@ -96,10 +96,13 @@
 
   Run the amd64 variant under emulation at least once.
 - **T-OPENCODE-06:** Variable names and format are set in `.env.local.example`
-  (`export KEY="value"` lines). Left: the encrypted file's location, and a loader that
-  runs `source <(ansible-vault view …)` so the decrypted values only reach the process
-  environment and never a file. First consumers: `OMLX_API_KEY` (smoke test), then the
-  GHCR tokens.
+  (`export KEY="value"` lines). `.env.local` is vault-encrypted in place, and the working
+  load snippet is in `.env.local.example` (`ansible-vault decrypt --output -` into a
+  variable, then `source /dev/stdin`). `source <(ansible-vault view …)` did not work.
+  `ansible.cfg` sets `scripts/vault-pass.sh` (macOS dialog) as the vault password client,
+  so `ansible-vault` also runs without a terminal. Left: whether scripts call the snippet
+  themselves or expect a pre-loaded shell. First
+  consumers: `OMLX_API_KEY` (smoke test), then the GHCR tokens.
 - **T-OPENCODE-07:** Depends on T-OPENCODE-05 passing and T-OPENCODE-06. Push the
   manifest list, record the digest in the image's catalogue entry, and pull by digest to
   verify (ideally from the OpenShift lab). GHCR namespaces differ per image, so set this
