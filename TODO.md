@@ -36,6 +36,7 @@
 - [ ] T-PROJ-03 Survey and catalogue the DR-product hook containers scattered across other projects
 - [ ] T-PROJ-04 Record the sandbox project's container requirements once it hands them over
 - [ ] T-PROJ-05 Survey and catalogue the web-terminal image
+- [ ] T-PROJ-06 Handoff file for other projects to request a machine and image
 
 ### OPENCODE — Track 1: OpenCode pipeline proof
 - [x] T-OPENCODE-01 Settle the repo layout, catalogue format and public/private split (resolved 2026-11-09: layout in requirements → Repo layout; gitignored `images-private/` + `catalogue.local.md`; `.conf` profiles; per-host `machines/local.env`; entry format in `catalogue.md`)
@@ -68,6 +69,16 @@
   Read-only survey: confirm which machine it runs in and what that machine's profile
   should be, and check whether `run.sh`'s bare `podman machine start` breaks the
   one-machine rule. Low priority, not part of Track 1.
+- **T-PROJ-06:** A file other projects copy, fill in and hand to podmanager, so a request
+  arrives with what podmanager needs to pick or build a machine profile and an image.
+  Likely fields: purpose; base image and tools; machine needs (CPU, memory, disk,
+  `/workspace` source, `/shared` opt-in, `/config` overrides); secrets by variable name
+  only; network/egress limits; public or private; customer-facing (handoff package) or
+  not; publish target; acceptance checks. podmanager turns it into
+  `images/<name>/requirements.md` and `machines/<profile>.conf`. Open: format (filled-in
+  Markdown vs structured YAML, see §5 Unscheduled) and where it lives. Best drafted after
+  T-OPENCODE-05, so it reflects a full pass through the pipeline. First user: the sandbox
+  project (T-PROJ-04).
 
 ### OPENCODE
 - **T-OPENCODE-04:** `podman build --platform linux/arm64,linux/amd64 --manifest`.
