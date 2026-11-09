@@ -42,7 +42,23 @@
 - `podman-machine-default` is left alone for now. web-terminal is catalogued (stub) and
   surveyed later as T-PROJ-05.
 
+### Later in the session
+- **Triage sheet v1** made at `reminders/20261108_podmanager_Triage_Sheet_v1.pdf` (HTML
+  printed with headless Chrome, one Letter page). `reminders/` is gitignored.
+- **Atlas overview** created at `.atlas/overview.md` (gitignored): slug/title
+  `podmanager`, visibility public, role_fit ai-lead + innovation-lead. The operator
+  answered: self-initiated; DR-product hooks feature is publicly announced; podmanager
+  runs on both Apple Silicon hosts. Two `[NEEDS]` markers remain (measurable result, proof
+  link), both waiting on T-OPENCODE-05/07.
+- **GHCR namespace is per image**, not one project namespace. Recorded in requirements
+  (Publish) and T-OPENCODE-07. Left open on purpose ("figure out as we go"): whether
+  each namespace needs its own credentials, given the env template has one GHCR set.
+  To settle at T-OPENCODE-07.
+
 ### Commits
 - `0816ebb` T-OPENCODE-02: record OpenCode config decisions; add env template, catalogue,
   T-PROJ-05.
-- Session-close housekeeping commit (CLAUDE.md brief + this file).
+- `313a08c` Session close: CLAUDE.md brief + this file.
+- `d9c6f88` T-OPENCODE-07: GHCR namespace per image; gitignore `reminders/`. All three
+  pushed.
+- Final session-close commit (this update).

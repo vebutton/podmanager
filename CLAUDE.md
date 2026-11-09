@@ -114,7 +114,9 @@ question (TODO.md §3).
 
 **Last (2026-11-08):** Surveyed the existing OpenCode image and the `opencode-lab` VM.
 Config decisions recorded (requirements → Config decisions). Added `.env.local.example`,
-a first `catalogue.md` entry (web-terminal), and T-PROJ-05. No code yet.
+a first `catalogue.md` entry (web-terminal), and T-PROJ-05. GHCR namespace is now per
+image. Also made a first triage sheet (`reminders/`) and the Atlas overview (`.atlas/`);
+both are gitignored. No code yet. Everything is pushed.
 
 **Next session — pick up here:**
 1. Cold start: re-read CLAUDE.md and CLAUDE.local.md.
@@ -135,6 +137,11 @@ a first `catalogue.md` entry (web-terminal), and T-PROJ-05. No code yet.
   the config.
 - `podman-machine-default` probably runs web-terminal. Leave it alone until T-PROJ-05.
 - The oMLX model is shared with another project. Keep smoke-test prompts small.
+- GHCR namespaces differ per image. Whether each one needs its own credentials in
+  `.env.local` is still open; settle it at T-OPENCODE-07.
+- podmanager runs on both Apple Silicon hosts, not only this one.
+- Refresh `.atlas/overview.md` at end of session when the project moved. Two markers are
+  open there, both waiting on T-OPENCODE-05/07.
 - Containers mount OpenCode config `:ro,Z`. Without `Z` the config is corrupted and
   OpenCode silently falls back to a cloud model. The smoke test must check which model is
   actually in use.
