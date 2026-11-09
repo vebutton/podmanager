@@ -46,3 +46,8 @@ learnings.md
 
 # Generated triage reminder sheets — local only
 reminders/
+
+# Private images, private catalogue entries, per-host values (T-OPENCODE-01)
+images-private/
+catalogue.local.md
+machines/local.env

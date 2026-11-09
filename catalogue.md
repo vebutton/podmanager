@@ -2,8 +2,18 @@
 
 Images podmanager knows about: built here, or living in other projects (catalogued, not
 absorbed). Host paths are never written here; they live in `CLAUDE.local.md` → Paths.
-Private entries go in the gitignored `catalogue.local.md`. The entry format gets settled
-in T-OPENCODE-01.
+Private entries go in the gitignored `catalogue.local.md`.
+
+**Entry format** (one `###` per image, under *Images built here* or *External images*):
+- **Status:** catalogued / surveyed / built here / published
+- **Location:** `images/<name>/` or a generic description of where it lives (path in
+  `CLAUDE.local.md`)
+- **What it is:** purpose and main contents
+- **Build:** base image, how it builds, tags and pins
+- **Machine:** the machine profile it needs
+- **Registry:** GHCR namespace and package visibility (published images only)
+- **Digest:** the manifest-list digest last published (published images only)
+- **Quirks to check:** anything surprising or unconfirmed
 
 ## External images
 

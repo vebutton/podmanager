@@ -67,11 +67,12 @@ here. Internal names, hosts and paths live in `CLAUDE.local.md`.
 ### Public/private split
 - The repo is **public**. Some images are public. Others must not appear in the repo, or
   only in obfuscated form.
-- Proposed (to be settled in T-OPENCODE-01): private images live in a gitignored
-  `images-private/` with the same shape as `images/`. Private catalogue entries go in a
-  gitignored `catalogue.local.md`. Internal names map through `CLAUDE.local.md`.
+- Private images live in a gitignored `images-private/` with the same shape as `images/`
+  (no separate private repo). Private catalogue entries go in a gitignored
+  `catalogue.local.md`. Internal names map through `CLAUDE.local.md`. Gitignored material
+  is not versioned or backed up by git.
 
-### Repo layout (proposed, T-OPENCODE-01)
+### Repo layout (settled, T-OPENCODE-01)
 ```
 machines/<profile>.conf     machine profile (cpus, memory, disk, rootful, volumes by variable)
 machines/local.env          gitignored: host paths and other per-host values
@@ -82,6 +83,11 @@ catalogue.local.md          gitignored: private catalogue entries
 scripts/                    thin wrappers: machine switch, build, test, push, recipe/handoff export
 output/                     gitignored: handoff packages, test results, recipe drafts
 ```
+- **Machine profiles** are shell-sourceable `KEY=value` files (no YAML, no parser).
+  Host-specific values (workspace paths, model storage) are referenced by variable name
+  and resolved from `machines/local.env`.
+- **`machines/local.env`** is per host: each Apple Silicon host keeps its own, never
+  committed.
 
 ### Interface
 - Main interface: Claude Code in this repo. Scripts are the execution layer and work
@@ -141,10 +147,15 @@ already exist).
 - **oMLX only.** Ollama-backed configs (`:11434`) are dropped.
 - The existing local image still bakes an old Ollama config. It only works because of
   the run-time mount.
+- **Model name and endpoint are baked, in public (2026-11-09).** `omlx/Qwen3.5-9B-oQ4e-mtp`
+  and `host.containers.internal:8000` identify no host, person or employer, and anyone
+  pulling the image from GHCR can read the baked file anyway. The run-time mount over
+  `/etc/opencode/opencode.json` stays the way to change model or endpoint.
+- **OpenShift always needs the override.** `host.containers.internal` only resolves under
+  Podman on the Mac, so a pod in the OpenShift lab must mount its own config (e.g. a
+  ConfigMap) at the same path.
 
 ### Known gaps
-- Model names and the host endpoint are baked into config. Decide whether they're public
-  or parameterised.
 - **oMLX API key.** oMLX rejects requests without a key, and the configs set none. Today
   the operator enters it by hand with `/connect` in every session. OpenCode saves it under
   `$HOME`, and the `--rm` container throws that away on exit. Planned fix: set
