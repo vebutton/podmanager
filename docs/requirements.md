@@ -130,10 +130,26 @@ already exist).
 - Then push to GHCR by digest and verify a pull by digest.
 - Produce the plain CLI recipe for the whole flow.
 
+### Config decisions (2026-11-08)
+- **Baked default: the local-only config** (OpenCode's own cloud provider disabled), so
+  the image can't reach a cloud model by accident. The all-providers config becomes a
+  run-time override mounted `:ro,Z` over `/etc/opencode/opencode.json`.
+- **Fix the model reference.** Both source configs set `"model"` to a name that their
+  host-named provider doesn't define, and not in OpenCode's `provider/model` form. Rename
+  the provider to the generic `omlx` and use `omlx/Qwen3.5-9B-oQ4e-mtp`.
+- **oMLX only.** Ollama-backed configs (`:11434`) are dropped.
+- The existing local image still bakes an old Ollama config. It only works because of
+  the run-time mount.
+
 ### Known gaps
-- `opencode.json` in the source is a symlink to a missing file (TODO.md T-OPENCODE-02).
 - Model names and the host endpoint are baked into config. Decide whether they're public
   or parameterised.
+- **oMLX API key.** oMLX rejects requests without a key, and the configs set none. Today
+  the operator enters it by hand with `/connect` in every session. OpenCode saves it under
+  `$HOME`, and the `--rm` container throws that away on exit. Planned fix: set
+  `"apiKey": "{env:OMLX_API_KEY}"` in the provider options and run with
+  `podman run -e OMLX_API_KEY`, so the key comes from the vault-loaded shell and never
+  lands in the image or in a file. Verify in T-OPENCODE-05.
 
 ## Track 2 — Claude Code sandbox image
 

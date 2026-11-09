@@ -35,6 +35,7 @@
 - [ ] T-PROJ-02 Survey and catalogue the S3 validator image (customer-facing)
 - [ ] T-PROJ-03 Survey and catalogue the DR-product hook containers scattered across other projects
 - [ ] T-PROJ-04 Record the sandbox project's container requirements once it hands them over
+- [ ] T-PROJ-05 Survey and catalogue the web-terminal image
 
 ### OPENCODE — Track 1: OpenCode pipeline proof
 - [ ] T-OPENCODE-01 Settle the repo layout, catalogue format and public/private split
@@ -62,18 +63,22 @@
 - **T-PROJ-04:** Blocked on the sandbox project. The operator pastes natural-language
   requirements, and podmanager records them as `images/<name>/requirements.md`. Feeds
   Track 2.
+- **T-PROJ-05:** Path in `CLAUDE.local.md`. A stub entry is already in `catalogue.md`.
+  Read-only survey: confirm which machine it runs in and what that machine's profile
+  should be, and check whether `run.sh`'s bare `podman machine start` breaks the
+  one-machine rule. Low priority, not part of Track 1.
 
 ### OPENCODE
 - **T-OPENCODE-01:** Proposed layout in `docs/requirements.md` → Repo layout. It covers:
   machine profile format, per-image directory shape, catalogue (public file + gitignored
   local file for private entries), `images-private/` gitignored, host paths resolved from
   a gitignored local file. Add the gitignore entries as part of this item.
-- **T-OPENCODE-02:** Source project path is in `CLAUDE.local.md`. Blocker: its
-  `opencode.json` is a symlink to a missing `opencode-qwen-mlx.json`. Recover it, or pick
-  one of the present configs (`opencode-any.json`, `opencode-local-only.json`) as the
-  baked default. An older sibling directory may hold the missing file. The baked config
-  references a host model endpoint and model names. Decide whether those go public or get
-  parameterised.
+- **T-OPENCODE-02:** Source project path is in `CLAUDE.local.md`. Config decisions are
+  made (requirements → Config decisions): bake local-only with the model reference fixed,
+  all-providers as a run-time override, Ollama configs dropped. Left: decide whether the
+  model name and host endpoint go public or get parameterised, and add
+  `"apiKey": "{env:OMLX_API_KEY}"` to the baked config so the key is no longer entered
+  by hand with `/connect` (requirements → Known gaps).
 - **T-OPENCODE-03:** From the source history: 2 CPU, 2 GiB, one host directory mounted
   to `/workspace`. The script must stop whatever machine is running, start the target and
   set it as the default connection. Replace the `cat | podman machine ssh` config
@@ -84,14 +89,17 @@
 - **T-OPENCODE-05:** The smoke test must cover:
   - the container starts under `--userns keep-id`
   - `/workspace` is writable and the declared files are read-only
-  - the host model endpoint is reachable
+  - the host model endpoint is reachable, with the key from `-e OMLX_API_KEY` (no
+    `/connect`)
   - **the configured model is the one actually in use**: the missing-`Z` failure falls
     back to a cloud model silently
 
   Run the amd64 variant under emulation at least once.
-- **T-OPENCODE-06:** Needs the vault file's path and variable names from the operator.
-  Decrypt at run time into the process environment only, never to a file in the repo.
-  The GHCR token is the first consumer.
+- **T-OPENCODE-06:** Variable names and format are set in `.env.local.example`
+  (`export KEY="value"` lines). Left: the encrypted file's location, and a loader that
+  runs `source <(ansible-vault view …)` so the decrypted values only reach the process
+  environment and never a file. First consumers: `OMLX_API_KEY` (smoke test), then the
+  GHCR tokens.
 - **T-OPENCODE-07:** Depends on T-OPENCODE-05 passing and T-OPENCODE-06. Push the
   manifest list, record the digest in the image's catalogue entry, and pull by digest to
   verify (ideally from the OpenShift lab). Confirm the GHCR namespace and package
@@ -117,7 +125,6 @@
   the first customer-facing image (T-PROJ-02).
 - **Public/private mechanics:** gitignored `images-private/` + local catalogue in this
   repo, or a separate private repo? → T-OPENCODE-01.
-- **Missing OpenCode config file** in the source project. → T-OPENCODE-02.
 
 ## 4. Standing operations
 Recurring work: no IDs, no checkboxes, tracked by last-run date.
@@ -133,7 +140,6 @@ Ideas that came up but aren't committed work. No ID until promoted into a track.
 - Formal requirements spec (e.g. YAML in the requesting repo) to replace natural-language
   hand-ins, if natural language starts to drift.
 - Remote x86 builder, if amd64 emulation builds become too slow.
-- OpenCode variant with all providers enabled (from the source project's own to-do).
 - Recipes for host-side model servers (oMLX/Ollama) that the OpenCode image talks to.
   Currently outside podmanager's scope.
 
