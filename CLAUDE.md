@@ -94,7 +94,9 @@ scripts underneath do the work, and they double as the plain CLI recipes.
 - **Objective:** Rebuild the existing OpenCode image end to end inside podmanager: machine
   profile → multi-arch build → local smoke test → GHCR push by digest. This proves the
   whole pipeline against an image already known to work.
-- **Status:** Not started.
+- **Status:** In progress. Done: layout (01), `images/opencode/` (02), machine profile +
+  switch script (03), GHCR → OpenShift probe (10). Next: multi-arch build (04), smoke
+  test (05).
 - **Depends on:** Nothing. This is the first track.
 
 ### Track 2 — Claude Code sandbox image (SANDBOX)
@@ -116,48 +118,59 @@ question (TODO.md §3).
 > Forward-looking operating context only. Archaeology lives in `docs/session-state.md`.
 > Task state lives in `TODO.md`.
 
-**Last (2026-11-08):** Surveyed the existing OpenCode image and the `opencode-lab` VM.
-Config decisions recorded (requirements → Config decisions). Added `.env.local.example`,
-a first `catalogue.md` entry (web-terminal), and T-PROJ-05. GHCR namespace is now per
-image. Also made a first triage sheet (`reminders/`) and the Atlas overview (`.atlas/`);
-both are gitignored. No code yet. Everything is pushed.
+**Last (2026-11-09):** Fixed vault loading (dialog password client) and decided scripts
+expect secrets pre-loaded. Closed T-OPENCODE-01 (layout), -02 (`images/opencode/`), -03
+(`machines/opencode.conf` + `scripts/machine-switch.sh`, machine `opencode` created) and
+-10 (private `podmanager-probe` pulled on the OpenShift lab with a pull secret). Added
+T-OPENCODE-09/10, T-PROJ-06 and the triage-sheet rule. Everything is pushed.
 
 **Next session — pick up here:**
-1. Cold start: re-read CLAUDE.md and CLAUDE.local.md.
-2. T-OPENCODE-01 is closed (2026-11-09): layout in requirements → Repo layout.
-3. T-OPENCODE-02/03 closed. Machine `opencode` (from `machines/opencode.conf`) is running
-   with test image `localhost/podmanager-opencode:test`. Hand-made `opencode-lab` is
-   stopped, kept as fallback. T-OPENCODE-10 closed: GHCR → OpenShift route proven with the
-   private `podmanager-probe` (pull-secret recipe in its `build.md`). Next: T-OPENCODE-04
-   (multi-arch build script).
-4. `.env.local` exists and is vault-encrypted in place. Load it with the snippet in
-   `.env.local.example`, not `source <(ansible-vault view …)` (T-OPENCODE-06). Scripts
-   expect the values already in the shell; Claude checks variable names only, never
-   values.
+1. Cold start: re-read CLAUDE.md and CLAUDE.local.md. Check `podman machine list`: the
+   `opencode` machine was left running; start/switch only via `scripts/machine-switch.sh`.
+2. T-OPENCODE-04: multi-arch build script for `images/opencode/` (arm64 native, amd64
+   under QEMU emulation on the machine; confirm `opencode-ai` installs under amd64).
+   `images/podmanager-probe/build.md` holds the proven push recipe to generalise.
+3. T-OPENCODE-05: scripted smoke test. It also finishes T-OPENCODE-06 (fail on a missing
+   variable, naming it, never a value). The operator's manual run worked, and the
+   operator watches GPU Monitor (`CLAUDE.local.md`) as a human cross-check.
+4. After 05 passes: T-OPENCODE-09 (remove `opencode-lab`, only with explicit OK), then
+   T-OPENCODE-07 (push OpenCode image) and T-PROJ-06 (request handoff file).
+
+**Open items carried:**
+- Triage sheet v1 (`reminders/`) predates the catalogue/handoff rule; the next update must
+  cover both.
+- Whether other GHCR namespaces need their own credentials (T-OPENCODE-07). The single
+  `GHCR_*` set works for `vebutton`.
+- Test images on the `opencode` machine: `podmanager-opencode:test`,
+  `podmanager-probe:0.1`. The probe pod may still be in the operator's OpenShift
+  namespace.
 
 **Continuity reminders:**
+- Secrets come from the vault-loaded shell (`.env.local`, decrypted with the snippet in
+  `.env.local.example`). `ansible.cfg` makes `ansible-vault` ask via a macOS dialog, so it
+  also works from Claude's tool shell. Check variable names only, never print values.
+- Tokens never go on a command line: stdin into `podman login` with a temporary
+  `--authfile`, removed by `trap` (see `images/podmanager-probe/build.md`).
 - Secrets template format is `export KEY="value"` only. Pass secrets to containers with
   `-e NAME`, never `--env-file` (podman keeps the quotes as part of the value).
 - Don't set `GITHUB_TOKEN` in this repo: it overrides the `vebutton` keyring login for `gh`.
-- The existing local `opencode-lab:1.19.0` image bakes an old Ollama config. It only
-  works because a config is mounted over it at run time. Don't use it as a reference for
-  the config.
+- New GHCR packages start private; visibility changes only in the GitHub UI.
+- Machine volumes are fixed at `podman machine init`. applehv ignores `:ro` on them;
+  `scripts/machine-switch.sh` remounts them read-only. Images live per machine.
+- OpenCode config overrides come from the `/config` machine volume, mounted `:ro`
+  **without** `Z` (`Z` fails on the read-only share). An unreadable config makes OpenCode
+  silently fall back to a cloud model, so the smoke test must check the model in use.
+- Rootless podman can't map OpenShift's high UIDs; test locally with any unlisted UID in
+  group 0.
+- The OpenCode image runs with `--userns keep-id`, home `/home/agent` (1777), config baked
+  at `/etc/opencode` outside `/workspace`.
+- The old `opencode-lab:1.19.0` image bakes a stale Ollama config. Don't use it as a
+  reference.
 - `podman-machine-default` probably runs web-terminal. Leave it alone until T-PROJ-05.
 - The oMLX model is shared with another project. Keep smoke-test prompts small.
-- GHCR namespaces differ per image. Whether each one needs its own credentials in
-  `.env.local` is still open; settle it at T-OPENCODE-07.
-- podmanager runs on both Apple Silicon hosts, not only this one.
+- podmanager runs on both Apple Silicon hosts; each needs its own `machines/local.env`.
 - Refresh `.atlas/overview.md` at end of session when the project moved. Two markers are
   open there, both waiting on T-OPENCODE-05/07.
-- OpenCode config overrides come from the `/config` machine volume, mounted `:ro` **without**
-  `Z` (`Z` fails on the read-only share; only files on the VM's own disk need it). An
-  unreadable config makes OpenCode silently fall back to a cloud model, so the smoke test
-  must check which model is actually in use.
-- applehv ignores `:ro` on machine volumes. Start machines with
-  `scripts/machine-switch.sh <profile>`, which remounts them read-only.
-- The OpenCode image runs with `--userns keep-id`. Its home is a world-writable
-  `/home/agent`, and its config is baked at `/etc/opencode`, outside `/workspace`, so the
-  agent can't edit its own permissions.
 
 **Session continuity:** Next session is a cold start, so re-read CLAUDE.md before doing
 anything. Sessions are never re-entered. End-of-session updates cover three layers: this

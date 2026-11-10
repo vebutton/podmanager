@@ -4,6 +4,92 @@
 > paths, commits, memories banked. The forward-looking brief lives in CLAUDE.md ->
 > Session State. Consult this file on demand when depth is needed.
 
+## 2026-11-09 — Session 3: vault loading, layout, opencode image + machine, GHCR probe
+
+### Secrets loading (T-OPENCODE-06)
+- `source <(ansible-vault view .env.local)` did not load the variables in the operator's
+  zsh. Likely cause (not tested, needs the password): the process substitution runs
+  ansible-vault without the terminal for its password prompt. Working form, from the
+  operator: `ansible-vault decrypt --output -` into a variable, then
+  `source /dev/stdin <<< …`, then `unset`. Recorded in `.env.local.example`.
+- `.env.local` is encrypted in place (`$ANSIBLE_VAULT` header) and gitignored. The
+  operator briefly had `.env.local.example` gitignored by a misunderstanding; reverted:
+  the template stays committed.
+- Added `scripts/vault-pass.sh` (osascript hidden-answer dialog) + repo `ansible.cfg`
+  (`vault_password_file`, resolved relative to the cfg). Lets ansible-vault run with no
+  tty, e.g. from Claude's tool shell. Tested: decrypt to `/dev/null`, exit 0. This
+  reconstructs how a previous project prompted the operator; that project was not read.
+- Decision: scripts expect secrets already in the shell (loaded before starting Claude
+  Code); they don't decrypt. Missing variable → fail naming it, never the value. Claude
+  checks names with `printenv | cut -d= -f1`.
+
+### Layout (T-OPENCODE-01, closed)
+- Gitignored `images-private/` + `catalogue.local.md` (no separate private repo; trade-off:
+  not versioned/backed up). `.conf` profiles as shell-sourceable `KEY=value`. Per-host
+  `machines/local.env`. Catalogue entry format = web-terminal fields + Registry + Digest.
+
+### OpenCode image (T-OPENCODE-02, closed)
+- Model name and `host.containers.internal:8000` baked in public: nothing identifying,
+  and anyone pulling from GHCR can read the baked file anyway. Mount override kept.
+  OpenShift pods always need the override (that hostname only resolves under Podman).
+- `images/opencode/`: Containerfile (version as build arg, OCI source label),
+  `opencode.json` (provider `omlx`, model `omlx/Qwen3.5-9B-oQ4e-mtp`,
+  `apiKey {env:OMLX_API_KEY}`), `overrides/opencode-any.json` generated from it (the
+  source's copy still had the broken model ref), `requirements.md`.
+- arm64 test build (~27 s): version 1.19.0, keep-id UID 501, HOME writable,
+  `opencode models omlx` lists the model. Avoided `opencode debug config` (would print the
+  substituted key). The operator then ran it interactively against oMLX: works.
+- Operator's GPU Monitor app noted in `CLAUDE.local.md` (oMLX: watch GPU Utilization only).
+
+### Machine profile + switch (T-OPENCODE-03, closed)
+- Facts: Podman 6.1.4; `machine set` can't change volumes; `opencode-lab` shared one host
+  folder at `/workspace`; virtiofs mounts carry `context=nfs_t`; SELinux enforcing.
+- Operator decisions: config overrides from the repo shared read-only as `/config`; plus
+  one fixed shared volume `/shared` (`PODMANAGER_SHARED`, next to the repo, rw in the VM,
+  opt-in per profile; e.g. the sandbox machine stages dirs, scans, wipes). opencode does
+  not opt in. New machine `opencode`; `opencode-lab` kept stopped. Same workspace folder.
+- Findings: applehv ignores `:ro` (a test `touch` wrote into the repo; deleted) → the
+  script remounts `:ro` targets in the VM after start (lost on reboot). Overrides from
+  `/config` must be `:ro` without `Z` (Z → lsetxattr read-only error). The old "always Z"
+  rule only applied to files on the VM disk.
+- `machine list` `.Name` carries `*` for the default; the script strips it. bash 3.2
+  empty-array guard added. Default connection now set before start (Podman Desktop popped
+  a "not the default" warning in the gap).
+- Proposed and added T-OPENCODE-09 (remove `opencode-lab` after T-OPENCODE-05).
+
+### GHCR → OpenShift probe (T-OPENCODE-10, closed)
+- The sibling project said GHCR is the easiest way into the OpenShift lab, so the
+  operator asked for a simple amd64 shell image first. Operator choices: `vebutton`
+  namespace, public, name `podmanager-probe`, build on `opencode`.
+- `ubi9-minimal` + tools, USER 1001, group-0 HOME, `sleep infinity`. amd64 via the VM's
+  qemu-x86_64 binfmt; built in ~14 s. Local test: `--user 1000680000:0` fails rootless
+  (outside the userns map); `54321:0` passed.
+- Pushed with a temporary auth file; digest
+  `sha256:4e42fe36…154e514`. Anonymous pull → 403 (new packages are private).
+- The operator pulled it on OpenShift with a `GHCR_READ_TOKEN` pull secret instead of
+  making it public; runs under default security, `oc rsh` works. Kept private (the route
+  private images need). The operator's tested recipe (collateral, Keychain-sourced) was
+  adapted to the vault env; their actual first run had the token in `oc`'s argv, so the
+  recipe warns against `--docker-password`.
+
+### Other
+- Added T-PROJ-06 (request handoff file for other projects) and a standing CLAUDE.md rule:
+  triage sheets always cover the catalogue and both handoff directions.
+- Rich-text clipboard summary of the `opencode` machine made for the operator (scratch).
+- Clarified for the operator: the probe build used the `opencode` *machine*, not the
+  OpenCode agent; any machine with the emulator would do.
+
+### Commits (all pushed)
+- `d62e0eb` vault load snippet + dialog password client
+- `0627908` scripts expect secrets pre-loaded
+- `67e8d5d` T-OPENCODE-01 closed; bake model/endpoint in public
+- `58fc654` T-OPENCODE-02 `images/opencode`
+- `1475ee8` T-OPENCODE-03 profile + switch script; T-OPENCODE-09
+- `07d9330` T-PROJ-06
+- `e0f18e2` triage-sheet rule
+- `511bb9a` T-OPENCODE-10 probe image
+- Final session-close commit (this update).
+
 ## 2026-11-08 — Session 2: OpenCode image survey, secrets template
 
 ### Survey (read-only: source projects, `opencode-lab` VM, local image)
