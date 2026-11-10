@@ -35,6 +35,24 @@ Private entries go in the gitignored `catalogue.local.md`.
   model. Overrides from `/config` mount `:ro` without `Z` (`Z` fails on the share). `host.containers.internal` doesn't resolve on OpenShift, so pods there always
   need the config override.
 
+### podmanager-probe
+- **Status:** published 2026-11-09. Pulled and run on the OpenShift lab under default
+  security settings, with a pull secret (T-OPENCODE-10).
+- **Location:** `images/podmanager-probe/`.
+- **What it is:** minimal shell image to prove the GHCR → OpenShift path. Stays up with
+  `sleep infinity` so the operator can `oc rsh` in. Details:
+  `images/podmanager-probe/requirements.md`.
+- **Build:** `ubi9/ubi-minimal` base, amd64 only, built under emulation on the `opencode`
+  machine. Recipe: `images/podmanager-probe/build.md`.
+- **Machine:** `opencode` (build only).
+- **Registry:** `ghcr.io/vebutton/podmanager-probe`, private; OpenShift pulls with a
+  `GHCR_READ_TOKEN` pull secret (recipe in `build.md`).
+- **Digest:** `sha256:4e42fe36867b428a68d32dd2539196b337ab1486076b9e921ceaaa931154e514`
+  (tag `0.1`).
+- **Quirks to check:** a new GHCR package starts private; visibility is changed in the
+  GitHub UI only. Rootless podman can't run OpenShift's high UIDs locally; test with any
+  unlisted UID in group 0.
+
 ## External images
 
 ### web-terminal

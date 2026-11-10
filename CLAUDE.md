@@ -127,7 +127,9 @@ both are gitignored. No code yet. Everything is pushed.
 2. T-OPENCODE-01 is closed (2026-11-09): layout in requirements → Repo layout.
 3. T-OPENCODE-02/03 closed. Machine `opencode` (from `machines/opencode.conf`) is running
    with test image `localhost/podmanager-opencode:test`. Hand-made `opencode-lab` is
-   stopped, kept as fallback. Next: T-OPENCODE-04 (multi-arch build script).
+   stopped, kept as fallback. T-OPENCODE-10 closed: GHCR → OpenShift route proven with the
+   private `podmanager-probe` (pull-secret recipe in its `build.md`). Next: T-OPENCODE-04
+   (multi-arch build script).
 4. `.env.local` exists and is vault-encrypted in place. Load it with the snippet in
    `.env.local.example`, not `source <(ansible-vault view …)` (T-OPENCODE-06). Scripts
    expect the values already in the shell; Claude checks variable names only, never

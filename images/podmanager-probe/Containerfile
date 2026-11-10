@@ -1,0 +1,17 @@
+# Probe image: proves the GHCR -> OpenShift path (T-OPENCODE-10). Does nothing but
+# stay up so the operator can shell in with `oc rsh`.
+FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
+
+LABEL org.opencontainers.image.source="https://github.com/vebutton/podmanager" \
+      org.opencontainers.image.description="podmanager probe: minimal shell image for testing GHCR pulls on OpenShift"
+
+RUN microdnf install -y bash procps-ng iputils bind-utils curl-minimal \
+    && microdnf clean all
+
+# OpenShift runs containers as an arbitrary UID in group 0: make HOME usable for it.
+RUN mkdir -p /home/probe && chgrp 0 /home/probe && chmod 0775 /home/probe
+ENV HOME=/home/probe
+WORKDIR /home/probe
+USER 1001
+
+CMD ["sleep", "infinity"]

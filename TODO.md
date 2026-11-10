@@ -48,6 +48,7 @@
 - [ ] T-OPENCODE-07 Push to GHCR by digest and verify pull
 - [ ] T-OPENCODE-08 Plain CLI recipe for non-Claude users
 - [ ] T-OPENCODE-09 Remove the hand-made `opencode-lab` machine
+- [x] T-OPENCODE-10 GHCR → OpenShift probe image (resolved 2026-11-09: private package pulled by digest on the OpenShift lab via a `GHCR_READ_TOKEN` pull secret, runs under default security; recipe in `images/podmanager-probe/build.md`)
 
 ### SANDBOX — Track 2: Claude Code sandbox image
 - [ ] T-SANDBOX-01 Decide whether the Claude Code image is built here or in the sandbox project
@@ -107,7 +108,9 @@
 - **T-OPENCODE-07:** Depends on T-OPENCODE-05 passing and T-OPENCODE-06. Push the
   manifest list, record the digest in the image's catalogue entry, and pull by digest to
   verify (ideally from the OpenShift lab). GHCR namespaces differ per image, so set this
-  image's namespace and package visibility.
+  image's namespace and package visibility. The route is proven by T-OPENCODE-10: push
+  with a temporary auth file, private package, pull secret recipe in
+  `images/podmanager-probe/build.md`.
 - **T-OPENCODE-08:** The same steps as the scripts, written out as copy-paste commands.
   This is the input for the operator's Confluence-article skill.
 - **T-OPENCODE-09:** Waits on T-OPENCODE-05 passing on the `opencode` machine. Until then
