@@ -42,13 +42,14 @@
 - [x] T-OPENCODE-01 Settle the repo layout, catalogue format and public/private split (resolved 2026-11-09: layout in requirements → Repo layout; gitignored `images-private/` + `catalogue.local.md`; `.conf` profiles; per-host `machines/local.env`; entry format in `catalogue.md`)
 - [x] T-OPENCODE-02 Catalogue the existing OpenCode image and write its requirements record (resolved 2026-11-09: `images/opencode/` + catalogue entry; arm64 test build ran interactively against oMLX)
 - [x] T-OPENCODE-03 Machine profile for OpenCode + machine-switch script (resolved 2026-11-09: `machines/opencode.conf`, `scripts/machine-switch.sh`; machine `opencode` created and running; overrides via `/config` volume)
-- [ ] T-OPENCODE-04 Multi-arch build script (arm64 + amd64 manifest list)
+- [x] T-OPENCODE-04 Multi-arch build script (arm64 + amd64 manifest list) (resolved 2026-11-13: deferred; OpenCode stays arm64-only for now, amd64 moves to T-OPENCODE-11; the generic multi-arch script comes with the first customer-facing image, T-PROJ-02)
 - [ ] T-OPENCODE-05 Run recipe and local smoke test for the OpenCode image
 - [ ] T-OPENCODE-06 Secrets loader from the Ansible Vault env file
 - [ ] T-OPENCODE-07 Push to GHCR by digest and verify pull
 - [ ] T-OPENCODE-08 Plain CLI recipe for non-Claude users
 - [ ] T-OPENCODE-09 Remove the hand-made `opencode-lab` machine
 - [x] T-OPENCODE-10 GHCR → OpenShift probe image (resolved 2026-11-09: private package pulled by digest on the OpenShift lab via a `GHCR_READ_TOKEN` pull secret, runs under default security; recipe in `images/podmanager-probe/build.md`)
+- [ ] T-OPENCODE-11 OpenCode on OpenShift: amd64 image, in-cluster config and a reachable model endpoint
 
 ### SANDBOX — Track 2: Claude Code sandbox image
 - [ ] T-SANDBOX-01 Decide whether the Claude Code image is built here or in the sandbox project
@@ -60,16 +61,21 @@
 - **T-PROJ-02:** Path not yet known (ask the operator). Read-only survey: where it lives,
   how it builds today, any intricacies of its own build. Write a catalogue entry. It's the
   first customer-facing image, so it is the likely first real handoff package (§3
-  handoff-format question). Not part of Track 1.
+  handoff-format question). It will run on x86 OpenShift, so it brings the generic
+  multi-arch build script (`podman build --platform linux/arm64,linux/amd64 --manifest`,
+  deferred from T-OPENCODE-04). Not part of Track 1.
 - **T-PROJ-03:** Paths not yet known. Same shape as T-PROJ-02, one catalogue entry per
   hook container. Some may need to stay private (gitignored), so decide per entry.
 - **T-PROJ-04:** Blocked on the sandbox project. The operator pastes natural-language
   requirements, and podmanager records them as `images/<name>/requirements.md`. Feeds
   Track 2.
 - **T-PROJ-05:** Path in `CLAUDE.local.md`. A stub entry is already in `catalogue.md`.
-  Read-only survey: confirm which machine it runs in and what that machine's profile
-  should be, and check whether `run.sh`'s bare `podman machine start` breaks the
-  one-machine rule. Low priority, not part of Track 1.
+  Read-only survey: decide which machine it should run in and what that machine's
+  profile should be. It probably ran in the old default machine out of convenience (a
+  test machine, not built for it); that machine was removed 2026-11-13 with any image
+  built there, and `run.sh` rebuilds the image if missing. Check whether `run.sh`'s bare
+  `podman machine start` breaks the one-machine rule; it now starts whichever machine is
+  the default connection (`opencode` today). Low priority, not part of Track 1.
 - **T-PROJ-06:** A file other projects copy, fill in and hand to podmanager, so a request
   arrives with what podmanager needs to pick or build a machine profile and an image.
   Likely fields: purpose; base image and tools; machine needs (CPU, memory, disk,
@@ -82,9 +88,6 @@
   project (T-PROJ-04).
 
 ### OPENCODE
-- **T-OPENCODE-04:** `podman build --platform linux/arm64,linux/amd64 --manifest`.
-  Confirm `opencode-ai` installs under amd64 emulation (npm package with per-platform
-  binaries). Keep the version pin (`opencode-ai@1.19.0` today).
 - **T-OPENCODE-05:** The smoke test must cover:
   - the container starts under `--userns keep-id`
   - `/workspace` is writable and the declared files are read-only
@@ -94,7 +97,7 @@
     read falls back to a cloud model silently
   - an override from `/config` (`:ro`, no `Z`) is the config actually loaded
 
-  Run the amd64 variant under emulation at least once.
+  arm64 only. The amd64 run moves to T-OPENCODE-11.
 - **T-OPENCODE-06:** Variable names and format are set in `.env.local.example`
   (`export KEY="value"` lines). `.env.local` is vault-encrypted in place, and the working
   load snippet is in `.env.local.example` (`ansible-vault decrypt --output -` into a
@@ -106,7 +109,7 @@
   (never a value) and pointing at the load snippet. First
   consumers: `OMLX_API_KEY` (smoke test), then the GHCR tokens.
 - **T-OPENCODE-07:** Depends on T-OPENCODE-05 passing and T-OPENCODE-06. Push the
-  manifest list, record the digest in the image's catalogue entry, and pull by digest to
+  arm64 image (single-arch, no manifest list for now), record the digest in the image's catalogue entry, and pull by digest to
   verify (ideally from the OpenShift lab). GHCR namespaces differ per image, so set this
   image's namespace and package visibility. The route is proven by T-OPENCODE-10: push
   with a temporary auth file, private package, pull secret recipe in
@@ -117,6 +120,16 @@
   `opencode-lab` stays stopped as a fallback. `podman machine rm` only with the operator's
   explicit OK. Its workspace is a host folder (shared with `opencode`), so it survives the
   removal; the VM's own files and images do not.
+- **T-OPENCODE-11:** Low priority; waits. The scenario: OpenCode running in-cluster as an
+  agent that troubleshoots product issues, like an engineering-team tool (name in
+  `CLAUDE.local.md`). The operator expects engineering to share theirs, so a version can
+  be built here. Needs: an amd64 image (confirm `opencode-ai` installs under emulation;
+  the npm package has per-platform binaries), a config mounted at
+  `/etc/opencode/opencode.json` from a ConfigMap (`host.containers.internal` doesn't
+  resolve on OpenShift), and a model endpoint the pod can reach. OpenCode itself needs no
+  GPU, but there is no amd64 GPU host, so the endpoint is the open design question (oMLX
+  on the Mac over the network, a model served in-cluster, or a cloud model). Pull with
+  the T-OPENCODE-10 pull-secret recipe.
 
 ### SANDBOX
 - **T-SANDBOX-01:** Resolves §3 question on where the Claude Code image lives. If it's
@@ -151,6 +164,8 @@ Ideas that came up but aren't committed work. No ID until promoted into a track.
 - Remote x86 builder, if amd64 emulation builds become too slow.
 - Recipes for host-side model servers (oMLX/Ollama) that the OpenCode image talks to.
   Currently outside podmanager's scope.
+- Investigate Red Hat's Validated Patterns utility container. It may hold Ansible tooling
+  worth reusing here.
 
 ## 6. Archive
 Closed items whose resolution no longer informs current work.

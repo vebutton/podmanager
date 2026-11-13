@@ -18,7 +18,7 @@ podmanager pipeline (Track 1).
   `/workspace`, so the agent can't edit its own permissions.
 - `HOME=/home/agent`, mode 1777, so any UID works. `WORKDIR /workspace`,
   `ENTRYPOINT ["opencode"]`.
-- Multi-arch: arm64 and amd64 (T-OPENCODE-04).
+- arm64 only for now. amd64 comes with OpenCode on OpenShift (T-OPENCODE-11).
 
 ## Config
 - **Baked default (`opencode.json`): local-only.** OpenCode's own cloud provider is
@@ -56,7 +56,6 @@ Volumes: host workspace → `/workspace` (rw), `images/opencode/overrides/` → 
 - `/workspace` writable, declared files read-only.
 - Host model endpoint reachable with the key from `-e OMLX_API_KEY`, no `/connect`.
 - **The configured model is the one actually in use.**
-- amd64 variant run under emulation at least once.
 - Keep prompts small: the host model is shared with other work.
 
 ## Publishing

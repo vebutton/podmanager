@@ -92,11 +92,13 @@ scripts underneath do the work, and they double as the plain CLI recipes.
 
 ### Track 1 — OpenCode pipeline proof (OPENCODE)
 - **Objective:** Rebuild the existing OpenCode image end to end inside podmanager: machine
-  profile → multi-arch build → local smoke test → GHCR push by digest. This proves the
-  whole pipeline against an image already known to work.
+  profile → build → local smoke test → GHCR push by digest. This proves the whole
+  pipeline against an image already known to work. OpenCode is arm64-only for now; the
+  amd64 → OpenShift leg is proven by the probe (10), and OpenCode on OpenShift waits as
+  T-OPENCODE-11.
 - **Status:** In progress. Done: layout (01), `images/opencode/` (02), machine profile +
-  switch script (03), GHCR → OpenShift probe (10). Next: multi-arch build (04), smoke
-  test (05).
+  switch script (03), GHCR → OpenShift probe (10); multi-arch build (04) deferred. Next:
+  smoke test (05).
 - **Depends on:** Nothing. This is the first track.
 
 ### Track 2 — Claude Code sandbox image (SANDBOX)
@@ -127,14 +129,13 @@ T-OPENCODE-09/10, T-PROJ-06 and the triage-sheet rule. Everything is pushed.
 **Next session — pick up here:**
 1. Cold start: re-read CLAUDE.md and CLAUDE.local.md. Check `podman machine list`: the
    `opencode` machine was left running; start/switch only via `scripts/machine-switch.sh`.
-2. T-OPENCODE-04: multi-arch build script for `images/opencode/` (arm64 native, amd64
-   under QEMU emulation on the machine; confirm `opencode-ai` installs under amd64).
-   `images/podmanager-probe/build.md` holds the proven push recipe to generalise.
-3. T-OPENCODE-05: scripted smoke test. It also finishes T-OPENCODE-06 (fail on a missing
-   variable, naming it, never a value). The operator's manual run worked, and the
-   operator watches GPU Monitor (`CLAUDE.local.md`) as a human cross-check.
-4. After 05 passes: T-OPENCODE-09 (remove `opencode-lab`, only with explicit OK), then
-   T-OPENCODE-07 (push OpenCode image) and T-PROJ-06 (request handoff file).
+2. T-OPENCODE-05: scripted smoke test, arm64 only (T-OPENCODE-04 deferred 2026-11-13).
+   It also finishes T-OPENCODE-06 (fail on a missing variable, naming it, never a
+   value). The operator's manual run worked, and the operator watches GPU Monitor
+   (`CLAUDE.local.md`) as a human cross-check.
+3. After 05 passes: T-OPENCODE-09 (remove `opencode-lab`, only with explicit OK), then
+   T-OPENCODE-07 (push the single-arch arm64 image; `images/podmanager-probe/build.md`
+   holds the proven push recipe) and T-PROJ-06 (request handoff file).
 
 **Open items carried:**
 - Triage sheet v1 (`reminders/`) predates the catalogue/handoff rule; the next update must
@@ -166,7 +167,8 @@ T-OPENCODE-09/10, T-PROJ-06 and the triage-sheet rule. Everything is pushed.
   at `/etc/opencode` outside `/workspace`.
 - The old `opencode-lab:1.19.0` image bakes a stale Ollama config. Don't use it as a
   reference.
-- `podman-machine-default` probably runs web-terminal. Leave it alone until T-PROJ-05.
+- `podman-machine-default` (a test machine, removed 2026-11-13) probably also hosted
+  web-terminal out of convenience. web-terminal has no machine now (T-PROJ-05).
 - The oMLX model is shared with another project. Keep smoke-test prompts small.
 - podmanager runs on both Apple Silicon hosts; each needs its own `machines/local.env`.
 - Refresh `.atlas/overview.md` at end of session when the project moved. Two markers are

@@ -19,14 +19,15 @@ Private entries go in the gitignored `catalogue.local.md`.
 
 ### opencode
 - **Status:** built here. arm64 test build (2026-11-09) ran interactively against the
-  host model; multi-arch build and scripted smoke test pending (T-OPENCODE-04/05).
+  host model; scripted smoke test pending (T-OPENCODE-05). arm64-only for now; amd64
+  waits on OpenCode on OpenShift (T-OPENCODE-11).
 - **Location:** `images/opencode/`. Rebuilt from an existing image in another project
   (path in `CLAUDE.local.md`), which stays as it is.
 - **What it is:** OpenCode coding-agent harness. Talks to a host-side oMLX model server;
   the model does not run in the container. Local-only config baked, all-providers config
   as a run-time override. Details: `images/opencode/requirements.md`.
 - **Build:** `node:22-bookworm-slim` base, `opencode-ai` pinned via build arg (1.19.0).
-  Multi-arch build script: T-OPENCODE-04.
+  arm64 only (T-OPENCODE-04 deferred; amd64 in T-OPENCODE-11).
 - **Machine:** `machines/opencode.conf` (machine `opencode`: 2 CPU, 2 GiB, `/workspace`
   rw, `/config` ro).
 - **Registry:** not published yet (T-OPENCODE-07).
@@ -66,7 +67,10 @@ Private entries go in the gitignored `catalogue.local.md`.
 - **Build:** `fedora:41` base, arch-aware at build time. `run.sh` builds the image if
   missing (tag `lab-terminal:latest`, unpinned), generates a local cert (mkcert, or a
   self-signed fallback) and runs it `--rm`.
-- **Machine:** probably the older default Podman machine (5 CPU, 2 GiB). Unconfirmed.
+- **Machine:** none now. It probably ran in the old default Podman machine out of
+  convenience (a test machine, not built for it). That machine was removed 2026-11-13,
+  along with any image built there; `run.sh` rebuilds the image if missing. Settled in
+  T-PROJ-05.
 - **Quirks to check:** `run.sh` calls a bare `podman machine start`, which may not respect
   the one-machine-at-a-time rule. Its login helper reads a cluster map from outside the
   project.

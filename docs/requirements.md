@@ -51,12 +51,14 @@ here. Internal names, hosts and paths live in `CLAUDE.local.md`.
 
 ### Build
 - Multi-arch by default: `linux/arm64` (native) + `linux/amd64` (emulated), built locally
-  on the Mac into a manifest list. No remote builder.
+  on the Mac into a manifest list. No remote builder. An image that only runs on the Macs
+  can be arm64-only (OpenCode for now, T-OPENCODE-11).
 - Pin tool versions in Containerfiles and bump them deliberately.
 
 ### Test
 - Every image gets a local smoke test before publishing: it runs, its mounts behave as
-  declared, and it does its job. Run the amd64 variant under emulation at least once.
+  declared, and it does its job. Run the amd64 variant (if built) under emulation at least
+  once.
 
 ### Publish
 - Most images go to **GHCR, pinned by digest**, so the OpenShift lab (x86) can pull them
@@ -142,7 +144,8 @@ already exist).
 - Same image behaviour, built from `images/opencode/` with a requirements record.
 - Machine profile matches today's (2 CPU, 2 GiB, workspace volume), declared in
   `machines/`.
-- Multi-arch manifest list (arm64 + amd64).
+- arm64 only for now (decided 2026-11-13: no amd64 GPU host). amd64 comes with OpenCode
+  on OpenShift (T-OPENCODE-11).
 - Replace the `cat | ssh` config copy with a declared mechanism: done, overrides come from
   the `/config` machine volume (T-OPENCODE-03).
 - Smoke test checks: startup under keep-id, mount modes, model endpoint reachability, and
