@@ -4,6 +4,39 @@
 > paths, commits, memories banked. The forward-looking brief lives in CLAUDE.md ->
 > Session State. Consult this file on demand when depth is needed.
 
+## 2026-11-13 — Session 4: default machine removed, T-OPENCODE-04 deferred
+
+### `podman-machine-default` removed
+- The operator found that the machine was created as a test, to avoid using Red Hat's
+  Validated Patterns container, and said it could be deleted. It was stopped and not
+  the default connection; removed with `podman machine rm -f` (its two connections went
+  with it). Not reversible: any images on that VM are gone.
+- The operator then corrected themselves: web-terminal probably used it out of
+  convenience. Records updated to say so. web-terminal has no machine now; `run.sh`
+  rebuilds its image if missing. Its bare `podman machine start` would now start
+  `opencode` (the default connection). Settled in T-PROJ-05.
+- Red Hat's Validated Patterns utility container went into TODO §5 Unscheduled (may
+  have reusable Ansible tooling). Promoting it to an item was offered (would be
+  T-PROJ-07); not taken up.
+
+### T-OPENCODE-04 deferred, T-OPENCODE-11 added
+- The operator has no amd64 host with a GPU, so an amd64 OpenCode image has no use yet.
+  The amd64 requirement had come only from the "multi-arch by default" rule, not from a
+  stated OpenShift use case.
+- Point made: OpenCode itself needs no GPU, only the model server does. So OpenCode on
+  OpenShift is a model-endpoint design question, not a hardware blocker.
+- Decided (operator): OpenCode stays arm64-only. T-OPENCODE-04 closed as deferred; the
+  generic multi-arch build script comes with T-PROJ-02 (S3 validator, x86 OpenShift).
+  T-OPENCODE-05 tests arm64 only; T-OPENCODE-07 pushes a single-arch image by digest.
+  The amd64 → GHCR → OpenShift route is already proven by the probe (T-OPENCODE-10).
+- New T-OPENCODE-11: OpenCode on OpenShift as an in-cluster troubleshooting agent,
+  modelled on an engineering-team tool (real name in `CLAUDE.local.md`). The operator
+  expects engineering to share it. Low priority.
+
+### Commits (not pushed)
+- `69fc1ec` T-OPENCODE-04 deferred: OpenCode arm64-only, add T-OPENCODE-11
+- Session close commit (this entry and the CLAUDE.md brief).
+
 ## 2026-11-09 — Session 3: vault loading, layout, opencode image + machine, GHCR probe
 
 ### Secrets loading (T-OPENCODE-06)

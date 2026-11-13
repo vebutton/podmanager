@@ -120,15 +120,17 @@ question (TODO.md §3).
 > Forward-looking operating context only. Archaeology lives in `docs/session-state.md`.
 > Task state lives in `TODO.md`.
 
-**Last (2026-11-09):** Fixed vault loading (dialog password client) and decided scripts
-expect secrets pre-loaded. Closed T-OPENCODE-01 (layout), -02 (`images/opencode/`), -03
-(`machines/opencode.conf` + `scripts/machine-switch.sh`, machine `opencode` created) and
--10 (private `podmanager-probe` pulled on the OpenShift lab with a pull secret). Added
-T-OPENCODE-09/10, T-PROJ-06 and the triage-sheet rule. Everything is pushed.
+**Last (2026-11-13):** Short planning session, no build work. Removed
+`podman-machine-default` (a test machine; web-terminal probably used it out of
+convenience). Deferred T-OPENCODE-04: OpenCode stays arm64-only (no amd64 GPU host), the
+generic multi-arch script moves to T-PROJ-02. Added T-OPENCODE-11 (OpenCode on OpenShift,
+modelled on an engineering tool, low priority) and an Unscheduled line for Red Hat's
+Validated Patterns utility container. Committed, **not pushed**.
 
 **Next session — pick up here:**
-1. Cold start: re-read CLAUDE.md and CLAUDE.local.md. Check `podman machine list`: the
-   `opencode` machine was left running; start/switch only via `scripts/machine-switch.sh`.
+1. Cold start: re-read CLAUDE.md and CLAUDE.local.md. `git push` the 2026-11-13 commits
+   if the operator agrees. Both machines (`opencode`, `opencode-lab`) are stopped; start
+   `opencode` only via `scripts/machine-switch.sh`.
 2. T-OPENCODE-05: scripted smoke test, arm64 only (T-OPENCODE-04 deferred 2026-11-13).
    It also finishes T-OPENCODE-06 (fail on a missing variable, naming it, never a
    value). The operator's manual run worked, and the operator watches GPU Monitor
@@ -145,6 +147,9 @@ T-OPENCODE-09/10, T-PROJ-06 and the triage-sheet rule. Everything is pushed.
 - Test images on the `opencode` machine: `podmanager-opencode:test`,
   `podmanager-probe:0.1`. The probe pod may still be in the operator's OpenShift
   namespace.
+- web-terminal has no machine since 2026-11-13. Its `run.sh` bare `podman machine start`
+  would now start `opencode` and build into it. Don't run it before T-PROJ-05 gives it a
+  profile.
 
 **Continuity reminders:**
 - Secrets come from the vault-loaded shell (`.env.local`, decrypted with the snippet in
