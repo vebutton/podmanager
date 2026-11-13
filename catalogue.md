@@ -54,6 +54,21 @@ Private entries go in the gitignored `catalogue.local.md`.
   GitHub UI only. Rootless podman can't run OpenShift's high UIDs locally; test with any
   unlisted UID in group 0.
 
+### n8n
+- **Status:** profile and run recipe written (T-PROJ-07); not run yet. Learning instance
+  to judge whether n8n belongs in the OpenShift lab.
+- **Location:** `images/n8n/` (requirements record and run recipe, no Containerfile).
+- **What it is:** n8n workflow automation, upstream image used as is. Details:
+  `images/n8n/requirements.md`.
+- **Build:** none. `docker.io/n8nio/n8n`, pinned at `2.47.7`; multi-arch upstream.
+- **Machine:** `machines/n8n.conf` (machine `n8n`: 2 CPU, 4 GiB, no host volumes; data
+  in the podman volume `n8n_data`).
+- **Registry:** upstream Docker Hub; not mirrored to GHCR.
+- **Digest:** to be recorded at the first pull.
+- **Quirks to check:** credentials depend on `N8N_ENCRYPTION_KEY` from the vault. The
+  data volume lives in the VM and is lost with `podman machine rm n8n` unless exported.
+  Browse via `localhost`, not `127.0.0.1` (secure-cookie check).
+
 ## External images
 
 ### web-terminal

@@ -37,6 +37,7 @@
 - [ ] T-PROJ-04 Record the sandbox project's container requirements once it hands them over
 - [ ] T-PROJ-05 Survey and catalogue the web-terminal image
 - [ ] T-PROJ-06 Handoff file for other projects to request a machine and image
+- [ ] T-PROJ-07 n8n: machine profile, pinned run recipe and local smoke test
 
 ### OPENCODE — Track 1: OpenCode pipeline proof
 - [x] T-OPENCODE-01 Settle the repo layout, catalogue format and public/private split (resolved 2026-11-09: layout in requirements → Repo layout; gitignored `images-private/` + `catalogue.local.md`; `.conf` profiles; per-host `machines/local.env`; entry format in `catalogue.md`)
@@ -86,6 +87,13 @@
   Markdown vs structured YAML, see §5 Unscheduled) and where it lives. Best drafted after
   T-OPENCODE-05, so it reflects a full pass through the pipeline. First user: the sandbox
   project (T-PROJ-04).
+- **T-PROJ-07:** Learning instance: the operator is evaluating n8n, local first. Profile
+  `machines/n8n.conf` and recipe `images/n8n/run.md` are written. Left: add
+  `N8N_ENCRYPTION_KEY` to the vault, run the recipe, check the acceptance list in
+  `images/n8n/requirements.md`, record the digest in `catalogue.md`. It runs only while
+  in use (one-machine rule unchanged). If it proves useful, OpenShift becomes a new item
+  (PVC, Secret for the key, Route), not a change to this one. What it integrates with is
+  unknown until then.
 
 ### OPENCODE
 - **T-OPENCODE-05:** The smoke test must cover:
