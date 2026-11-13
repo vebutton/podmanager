@@ -1,7 +1,13 @@
 # n8n — run, check, back up
 
 Plain commands, run from the repo root. Needs `N8N_ENCRYPTION_KEY` in the shell (loaded
-from the vault, see `.env.local.example`).
+from the vault, see `.env.local.example`) **before the first start**: unset, n8n
+generates its own key into the volume instead.
+
+Adapted for podman from n8n's Docker page (docs.n8n.io/hosting/installation/docker/, checked
+2026-11-13). Upstream marks that page outdated in favour of Docker Compose and doesn't
+mention podman. Same volume, mount path and variables; added: the vault key, a pinned
+tag, and the `127.0.0.1` bind.
 
 ## Start
 ```sh
@@ -18,15 +24,20 @@ podman run -d --name n8n \
   -v n8n_data:/home/node/.n8n \
   docker.io/n8nio/n8n:2.47.7
 ```
-Open `http://localhost:5678` (`localhost`, not `127.0.0.1`: n8n's secure cookie
-accepts plain http only on localhost). The first visit creates the owner account.
+Open `http://localhost:5678`, the address the docs use. Secure cookies are on by default
+(`N8N_SECURE_COOKIE=true`), and whether plain http also works on `127.0.0.1` is
+unverified. The first visit creates the owner account.
 
 ## Check
 ```sh
-curl -fsS http://localhost:5678/healthz          # {"status":"ok"}
+curl -fsS -o /dev/null -w '%{http_code}\n' http://localhost:5678/healthz            # 200: reachable
+curl -fsS -o /dev/null -w '%{http_code}\n' http://localhost:5678/healthz/readiness  # 200: DB connected and migrated
 podman logs --tail 20 n8n
 podman image inspect --format '{{.Digest}}' docker.io/n8nio/n8n:2.47.7
 ```
+Expect digest `sha256:b4b90747b81fcda7e76550c0d3aa7f0f64917a1e9573cff40d6834eaf2e0f8ea`
+(Docker Hub, 2026-11-13). A deprecation warning about task runners in internal mode is
+expected (see `requirements.md`).
 
 ## Stop / upgrade
 ```sh
