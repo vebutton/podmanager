@@ -13,6 +13,8 @@ Private entries go in the gitignored `catalogue.local.md`.
 - **Machine:** the machine profile it needs
 - **Registry:** GHCR namespace and package visibility (published images only)
 - **Digest:** the manifest-list digest last published (published images only)
+- **Used by:** other projects that depend on the image or a running instance, and what
+  they hold (optional)
 - **Quirks to check:** anything surprising or unconfirmed
 
 ## Images built here
@@ -71,6 +73,10 @@ Private entries go in the gitignored `catalogue.local.md`.
 - **Digest:** `sha256:b4b90747b81fcda7e76550c0d3aa7f0f64917a1e9573cff40d6834eaf2e0f8ea`
   (tag `2.47.7`, multi-arch index; confirmed at the first pull 2026-11-13). arm64 platform
   manifest: `sha256:1d1113949e99d64ecf8da7f9504d65d083bc4d4404f9f920a31e47e2524410f2`.
+- **Used by:** `n8n-sandbox` (sibling project, since 2026-11-13), through the public REST
+  API (`images/n8n/handoff.md`). It holds its own `N8N_API_KEY`, created in the UI;
+  podmanager holds only `N8N_ENCRYPTION_KEY`. Tell it before stopping, upgrading or
+  recreating the instance.
 - **Quirks to check:** credentials depend on `N8N_ENCRYPTION_KEY` from the vault, set
   before the first start. The data volume lives in the VM and is lost with
   `podman machine rm n8n` unless exported. Task runners run in internal mode
