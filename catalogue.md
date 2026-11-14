@@ -55,7 +55,7 @@ Private entries go in the gitignored `catalogue.local.md`.
   unlisted UID in group 0.
 
 ### n8n
-- **Status:** profile and run recipe written (T-PROJ-07); not run yet. Learning instance
+- **Status:** running locally, acceptance passed 2026-11-13 (T-PROJ-07). Learning instance
   to judge whether n8n belongs in the OpenShift lab.
 - **Location:** `images/n8n/` (requirements record and run recipe, no Containerfile).
 - **What it is:** n8n workflow automation, upstream image used as is. Details:
@@ -66,12 +66,15 @@ Private entries go in the gitignored `catalogue.local.md`.
   in the podman volume `n8n_data`).
 - **Registry:** upstream Docker Hub; not mirrored to GHCR.
 - **Digest:** `sha256:b4b90747b81fcda7e76550c0d3aa7f0f64917a1e9573cff40d6834eaf2e0f8ea`
-  (tag `2.47.7`, from Docker Hub 2026-11-13; confirm at the first pull).
+  (tag `2.47.7`, multi-arch index; confirmed at the first pull 2026-11-13). arm64 platform
+  manifest: `sha256:1d1113949e99d64ecf8da7f9504d65d083bc4d4404f9f920a31e47e2524410f2`.
 - **Quirks to check:** credentials depend on `N8N_ENCRYPTION_KEY` from the vault, set
   before the first start. The data volume lives in the VM and is lost with
   `podman machine rm n8n` unless exported. Task runners run in internal mode
   (deprecated from 3.0; external mode needs an `n8nio/runners` sidecar). Secure cookies
-  are on by default: browse via `localhost`.
+  are on by default: browse via `localhost` (plain http works there). The Assistant
+  reaches oMLX at `host.containers.internal:8000/v1`; the code sandbox service is not set
+  up.
 
 ## External images
 

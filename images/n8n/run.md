@@ -25,18 +25,32 @@ podman run -d --name n8n \
   docker.io/n8nio/n8n:2.47.7
 ```
 Open `http://localhost:5678`, the address the docs use. Secure cookies are on by default
-(`N8N_SECURE_COOKIE=true`), and whether plain http also works on `127.0.0.1` is
-unverified. The first visit creates the owner account.
+(`N8N_SECURE_COOKIE=true`); login over plain http on `localhost` works (2026-11-13). The
+first visit creates the owner account. With no SMTP set up, its email is only a login
+name; a lost password is reset with `podman exec n8n n8n user-management:reset`.
+
+## Connect the local model (Assistant)
+In n8n's "Connect a model" screen, pick "Self-hosted or OpenAI-compatible endpoint":
+- Base URL `http://host.containers.internal:8000/v1` (oMLX on the host; `localhost` is
+  the container itself)
+- API key: the `OMLX_API_KEY` value from the vault; n8n stores it as an encrypted
+  credential in `n8n_data`
+- Model: the id that `/v1/models` lists
+
+The "code sandbox" step that follows needs a separate n8n sandbox service, not the model
+server. Not set up here; skip it.
 
 ## Check
 ```sh
 curl -fsS -o /dev/null -w '%{http_code}\n' http://localhost:5678/healthz            # 200: reachable
 curl -fsS -o /dev/null -w '%{http_code}\n' http://localhost:5678/healthz/readiness  # 200: DB connected and migrated
 podman logs --tail 20 n8n
-podman image inspect --format '{{.Digest}}' docker.io/n8nio/n8n:2.47.7
+podman inspect --format '{{.ImageDigest}}' n8n                                  # multi-arch index digest
 ```
 Expect digest `sha256:b4b90747b81fcda7e76550c0d3aa7f0f64917a1e9573cff40d6834eaf2e0f8ea`
-(Docker Hub, 2026-11-13). A deprecation warning about task runners in internal mode is
+(Docker Hub, 2026-11-13; confirmed at the first pull). Don't use
+`podman image inspect --format '{{.Digest}}'`: it prints the arm64 platform manifest
+(`sha256:1d1113…`), not the index. A deprecation warning about task runners in internal mode is
 expected (see `requirements.md`).
 
 ## Stop / upgrade

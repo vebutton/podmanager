@@ -37,7 +37,7 @@
 - [ ] T-PROJ-04 Record the sandbox project's container requirements once it hands them over
 - [ ] T-PROJ-05 Survey and catalogue the web-terminal image
 - [ ] T-PROJ-06 Handoff file for other projects to request a machine and image
-- [ ] T-PROJ-07 n8n: machine profile, pinned run recipe and local smoke test
+- [x] T-PROJ-07 n8n: machine profile, pinned run recipe and local smoke test (resolved 2026-11-13: all four acceptance checks pass on machine `n8n`; digest confirmed; Assistant wired to oMLX)
 
 ### OPENCODE — Track 1: OpenCode pipeline proof
 - [x] T-OPENCODE-01 Settle the repo layout, catalogue format and public/private split (resolved 2026-11-09: layout in requirements → Repo layout; gitignored `images-private/` + `catalogue.local.md`; `.conf` profiles; per-host `machines/local.env`; entry format in `catalogue.md`)
@@ -87,10 +87,12 @@
   Markdown vs structured YAML, see §5 Unscheduled) and where it lives. Best drafted after
   T-OPENCODE-05, so it reflects a full pass through the pipeline. First user: the sandbox
   project (T-PROJ-04).
-- **T-PROJ-07:** Learning instance: the operator is evaluating n8n, local first. Profile
-  `machines/n8n.conf` and recipe `images/n8n/run.md` are written. Left: add
-  `N8N_ENCRYPTION_KEY` to the vault, run the recipe, check the acceptance list in
-  `images/n8n/requirements.md`, record the digest in `catalogue.md`. It runs only while
+- **T-PROJ-07:** Learning instance: the operator is evaluating n8n, local first. Done
+  2026-11-13: health and readiness 200, digest `b4b9…` (multi-arch index) matches
+  `catalogue.md`, vault key is the one stored in the volume, a workflow and the
+  Assistant credential survive `podman rm` + re-run, the recipe fails naming the key
+  when it is unset. Not done: the n8n code sandbox service (skipped; its own item if
+  wanted). Telemetry (`N8N_DIAGNOSTICS_ENABLED`) left at the default, undecided. It runs only while
   in use (one-machine rule unchanged). If it proves useful, OpenShift becomes a new item
   (PVC, Secret for the key, Route), not a change to this one. What it integrates with is
   unknown until then.
