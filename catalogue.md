@@ -57,7 +57,8 @@ Private entries go in the gitignored `catalogue.local.md`.
 ### n8n
 - **Status:** running locally, acceptance passed 2026-11-13 (T-PROJ-07). Learning instance
   to judge whether n8n belongs in the OpenShift lab.
-- **Location:** `images/n8n/` (requirements record and run recipe, no Containerfile).
+- **Location:** `images/n8n/` (requirements record, run recipe and a handoff for projects
+  that use the instance, `handoff.md`; no Containerfile).
 - **What it is:** n8n workflow automation, upstream image used as is. Details:
   `images/n8n/requirements.md`.
 - **Build:** none. `docker.io/n8nio/n8n`, pinned at `2.47.7` (upstream `stable` on
