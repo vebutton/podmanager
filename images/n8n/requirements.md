@@ -32,6 +32,12 @@ operator uses it, and switching machines stops it.
 
 ## Network
 - UI and API on `127.0.0.1:5678` only. No inbound webhooks from outside yet.
+
+## Files
+- An inbox (read-only) and an outbox (writable) from the host, mounted at
+  `/home/node/.n8n-files/{inbox,outbox}`. Nothing else from the host reaches the machine
+  or the container. A profile with no volumes is not "no host access": podman then
+  shares its defaults (`/Users`, `/private`, `/var/folders`).
 - What it talks to (local model servers, cluster APIs, SaaS) is unknown until the
   operator has seen what it is for.
 

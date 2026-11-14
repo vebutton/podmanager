@@ -92,7 +92,9 @@
   `catalogue.md`, vault key is the one stored in the volume, a workflow and the
   Assistant credential survive `podman rm` + re-run, the recipe fails naming the key
   when it is unset. Not done: the n8n code sandbox service (skipped; its own item if
-  wanted). Telemetry (`N8N_DIAGNOSTICS_ENABLED`) left at the default, undecided. It runs only while
+  wanted). Telemetry (`N8N_DIAGNOSTICS_ENABLED`) left at the default, undecided.
+  Same day: machine recreated with an inbox (ro) and outbox instead of podman's default
+  `/Users` share, data restored from an export, workflow and credential verified again. It runs only while
   in use (one-machine rule unchanged). If it proves useful, OpenShift becomes a new item
   (PVC, Secret for the key, Route), not a change to this one. What it integrates with is
   unknown until then.

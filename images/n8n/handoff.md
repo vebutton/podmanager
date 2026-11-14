@@ -2,7 +2,7 @@
 
 For a project that builds workflows on the local n8n learning instance. podmanager owns
 the container, the machine and the data; the using project owns its workflows and its own
-API key. Copy this file into that project (e.g. its `docs/`). State as of 2026-11-13.
+API key. Copy this file into that project (e.g. its `docs/`). State as of 2026-11-13 (inbox/outbox added the same day).
 
 ## What is running
 - n8n `2.47.7` (upstream `docker.io/n8nio/n8n`, digest
@@ -10,6 +10,13 @@ API key. Copy this file into that project (e.g. its `docs/`). State as of 2026-1
   `n8n` in the Podman machine `n8n` on the Apple Silicon host.
 - Bound to `127.0.0.1:5678` on the host only. Nothing outside the host can reach it.
 - Data (SQLite, credentials, settings) in the podman volume `n8n_data` inside the VM.
+- Two host folders shared for files (host paths are per host; the operator knows them):
+  | In n8n | Access | Use |
+  |---|---|---|
+  | `/home/node/.n8n-files/inbox` | read-only | files for n8n to read |
+  | `/home/node/.n8n-files/outbox` | read-write | files n8n writes |
+  Nothing else on the Mac is visible to n8n or to the machine. n8n's file nodes may
+  only use `/home/node/.n8n-files` (n8n 2.x default).
 - Owner account set up in the UI. Holds one test workflow (`My workflow`) and one
   credential (`n8n Assistant model`, the local model).
 
@@ -55,8 +62,8 @@ credentials by ID and name, not by secret value, but check exports before commit
   don't create a second copy of the key. The model is shared with another project: keep
   prompts small.
 - The internet: outbound is open (no egress limits on this instance).
-- No host directories are mounted. Files in or out go through the API, webhooks, or
-  `podman cp` (ask podmanager).
+- Files: only the inbox (read) and outbox (write) above. Anything else goes through
+  the API or webhooks. More folders mean recreating the machine: ask podmanager.
 
 ## Not available
 - **Code sandbox service** (used by the Assistant and Agents to run code and handle

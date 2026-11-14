@@ -63,8 +63,10 @@ Private entries go in the gitignored `catalogue.local.md`.
   `images/n8n/requirements.md`.
 - **Build:** none. `docker.io/n8nio/n8n`, pinned at `2.47.7` (upstream `stable` on
   2026-11-13); multi-arch upstream (amd64, arm64).
-- **Machine:** `machines/n8n.conf` (machine `n8n`: 2 CPU, 4 GiB, no host volumes; data
-  in the podman volume `n8n_data`).
+- **Machine:** `machines/n8n.conf` (machine `n8n`: 2 CPU, 4 GiB). Shares only an inbox
+  (read-only) and an outbox with the VM; recreated 2026-11-13, after the first version
+  turned out to share podman's default `/Users` etc. Data in the podman volume
+  `n8n_data`.
 - **Registry:** upstream Docker Hub; not mirrored to GHCR.
 - **Digest:** `sha256:b4b90747b81fcda7e76550c0d3aa7f0f64917a1e9573cff40d6834eaf2e0f8ea`
   (tag `2.47.7`, multi-arch index; confirmed at the first pull 2026-11-13). arm64 platform
