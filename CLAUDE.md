@@ -124,7 +124,9 @@ question (TODO.md §3).
 `n8n-sandbox` as a user of the n8n instance (catalogue **Used by** field). Key split
 confirmed: podmanager holds `N8N_ENCRYPTION_KEY`; `n8n-sandbox` holds its own
 `N8N_API_KEY` and reuses the stored oMLX credential. Also wrote up the post-close work
-from session 5 (T-PROJ-07 closed, handoff, inbox/outbox). All commits pushed.
+from session 5 (T-PROJ-07 closed, handoff, inbox/outbox). `machine-switch.sh` now
+refuses podman's default shares and checks mounts against the profile before every
+start. All commits pushed.
 
 **Next session — pick up here:**
 1. Cold start: re-read CLAUDE.md and CLAUDE.local.md. `n8n` is **running**
