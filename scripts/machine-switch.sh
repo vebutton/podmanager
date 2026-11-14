@@ -45,10 +45,35 @@ if [[ ${SHARED:-false} == true ]]; then
   run mkdir -p "$PODMANAGER_SHARED"
   volume_args+=(--volume "$PODMANAGER_SHARED:/shared")
 fi
+# With no --volume, podman machine init shares its defaults (/Users, /private,
+# /var/folders, ~/.config/containers, read-write) with the VM. Never allow that.
+[[ ${#volume_args[@]} -gt 0 ]] || die "profile $PROFILE lists no volumes;" \
+  "podman would share its defaults (/Users etc.) with the VM"
+
+# The machine's mounts must be exactly the profile's, as source:target:ro|rw.
+expected_mounts() {
+  local i vol
+  for ((i = 1; i < ${#volume_args[@]}; i += 2)); do
+    vol=${volume_args[i]}
+    if [[ $vol == *:ro ]]; then echo "${vol%:ro}:ro"; else echo "$vol:rw"; fi
+  done | sort
+}
+check_mounts() {
+  local dir actual
+  dir=$(podman machine inspect "$MACHINE_NAME" --format '{{.ConfigDir.Path}}')
+  actual=$(jq -r '.Mounts // [] | .[] |
+    "\(.Source):\(.Target):\(if .ReadOnly then "ro" else "rw" end)"' \
+    "$dir/$MACHINE_NAME.json" | sort)
+  [[ $actual == "$(expected_mounts)" ]] && return
+  echo "machine-switch: $MACHINE_NAME mounts differ from profile $PROFILE" >&2
+  diff <(expected_mounts) <(echo "$actual") | sed -n 's/^</  profile only:/p; s/^>/  machine only:/p' >&2
+  die "not starting $MACHINE_NAME; recreate it from the profile (export its data first)"
+}
 
 # --- Create if missing ---------------------------------------------------------
 if podman machine inspect "$MACHINE_NAME" >/dev/null 2>&1; then
-  # Resources can drift from the profile; volumes can't be checked or changed here.
+  check_mounts
+  # Resources can drift from the profile (warn only); volumes are checked above.
   actual=$(podman machine inspect "$MACHINE_NAME" \
     --format '{{.Resources.CPUs}} {{.Resources.Memory}} {{.Resources.DiskSize}} {{.Rootful}}')
   wanted="$CPUS $MEMORY_MIB $DISK_GIB $ROOTFUL"
@@ -58,7 +83,8 @@ else
   init_args=(--cpus "$CPUS" --memory "$MEMORY_MIB" --disk-size "$DISK_GIB")
   [[ $ROOTFUL == true ]] && init_args+=(--rootful)
   # ${a[@]+...}: macOS bash 3.2 treats an empty array as unset under set -u.
-  run podman machine init "$MACHINE_NAME" "${init_args[@]}" ${volume_args[@]+"${volume_args[@]}"}
+  run podman machine init "$MACHINE_NAME" "${init_args[@]}" "${volume_args[@]}"
+  $DRY_RUN || check_mounts
 fi
 
 # --- Stop any other running machine, start the target --------------------------

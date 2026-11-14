@@ -24,8 +24,22 @@
   (REST API, its own key) and says to tell it before stopping, upgrading or recreating
   the instance.
 
+### Guard against podman's default shares
+- The operator asked that the `/Users` exposure (found after session 5's close) be
+  avoided going forward. Checked first: all three machines share only their profile's
+  volumes today; no `/Users`. podman 6.1.4's default list also includes
+  `~/.config/containers:/etc/containers`.
+- `scripts/machine-switch.sh` now refuses a profile with no volumes, and checks the
+  machine's mounts (source:target:ro|rw, read from the machine's JSON in its config dir)
+  against the profile after `init` and before every start. On a mismatch it prints the
+  differences and stops without starting. Tested by dry-run: `n8n` and `opencode` pass;
+  an empty-volume profile and a mismatched profile for `n8n` are refused.
+- Ruled out: `--volume ""` to mean "no shares" (unverified in podman; no profile needs
+  zero volumes yet).
+
 ### Commits (all pushed)
 - `b4938b1` catalogue: record n8n-sandbox as a user of the n8n instance
+- Guard commit (machine-switch mount check).
 - Session close commit (this entry, the CLAUDE.md brief, `.atlas/overview.md`).
 
 ## 2026-11-13 — Session 5, after the close: n8n acceptance, handoff, inbox/outbox

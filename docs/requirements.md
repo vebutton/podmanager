@@ -27,7 +27,12 @@ here. Internal names, hosts and paths live in `CLAUDE.local.md`.
 - Profiles must not commit host paths that contain the username. Resolve host paths from a
   gitignored local file or from variables.
 - **Machine volumes (settled 2026-11-09, T-OPENCODE-03).** Fixed at `podman machine init`;
-  changing them means recreating the machine. Conventional targets in the VM:
+  changing them means recreating the machine. A profile must list every volume: with no
+  `--volume`, `podman machine init` shares its defaults (`/Users`, `/private`,
+  `/var/folders`, `~/.config/containers`, read-write). `machine-switch.sh` refuses a
+  profile with no volumes, and before every start checks that the machine's mounts are
+  exactly the profile's (source, target, read-only flag), else it stops without starting.
+  Conventional targets in the VM:
   - `/workspace`: per-project workspace, writable.
   - `/config`: run-time config overrides from the repo (`images/<name>/overrides/`),
     read-only.

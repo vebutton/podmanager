@@ -187,7 +187,9 @@ from session 5 (T-PROJ-07 closed, handoff, inbox/outbox). All commits pushed.
 - After `podman volume import n8n_data`, chown the volume root to `node` (recipe in
   `images/n8n/run.md`), or n8n exits with `EACCES`.
 - An empty `VOLUMES=""` in a machine profile is not "no volumes": `podman machine init`
-  then shares macOS defaults (`/Users` etc., rw). List the volumes explicitly.
+  then shares macOS defaults (`/Users` etc., rw). `scripts/machine-switch.sh` now refuses
+  it and checks mounts against the profile before every start. Never create a machine
+  with a bare `podman machine init`.
 - Projects using a running instance are in the catalogue's **Used by** field. Check it
   before stopping, upgrading or recreating that instance.
 - The oMLX model is shared with another project. Keep smoke-test prompts small.
