@@ -4,6 +4,59 @@
 > paths, commits, memories banked. The forward-looking brief lives in CLAUDE.md ->
 > Session State. Consult this file on demand when depth is needed.
 
+## 2026-11-13 — Session 5: n8n learning instance (T-PROJ-07)
+
+### Use case
+- The operator attends an n8n event on 2026-11-14 and wants to try n8n under podman
+  first. Purely learning: integrations unknown until the event. If it proves useful it
+  would live on the OpenShift lab, not the Mac. Local first, public catalogue entry.
+- Decided (operator): it runs only while in use; switching machines stops it. The
+  one-machine rule stays unchanged. Ruled out: Mac Studio as always-on host, a relaxed
+  rule for a services machine.
+
+### What was built (not run yet)
+- `machines/n8n.conf`: machine `n8n`, 2 CPU, 4 GiB, 50 GiB, no host volumes.
+- `images/n8n/requirements.md` + `run.md` (start, check, stop/upgrade, backup). No
+  Containerfile: upstream `docker.io/n8nio/n8n:2.47.7` used as is.
+- `N8N_ENCRYPTION_KEY` added to `.env.local.example`; catalogue entry; T-PROJ-07.
+- Departures from the pasted command: pinned tag instead of `:latest`; key from the
+  vault (unset, n8n generates one into the volume, and credentials die with it); TZ
+  read from `/etc/localtime` so the public repo names no city.
+- Data stays in the podman volume `n8n_data` inside the VM. Ruled out: a host-folder
+  machine volume (SQLite over virtiofs plus the 0600 settings-file check is risky on
+  applehv). Consequence: `podman machine rm n8n` destroys it unless exported first.
+
+### Validation against upstream
+- The operator pointed out the pasted command came from Perplexity, not n8n, and asked
+  whether the needs had been checked independently. They hadn't (only the release tag
+  had). Checked docs.n8n.io and Docker Hub afterwards:
+  - The command matches n8n's Docker page (which upstream marks outdated in favour of
+    Compose; no podman mention). `2.47.7` is the current `stable`; Docker Hub has amd64
+    and arm64; digest `sha256:b4b9…f8ea` recorded.
+  - Corrected: `/healthz` promises HTTP 200 only (not a JSON body); added
+    `/healthz/readiness` (DB connected). The "`localhost` not `127.0.0.1`" secure-cookie
+    claim was from memory: docs only use `localhost`, so `127.0.0.1` is marked
+    unverified.
+  - n8n publishes no CPU/memory figures: 2 CPU / 4 GiB is podmanager's own choice.
+    SQLite "suits testing and small setups"; PostgreSQL recommended for production.
+  - Task runners: 2.x runs internal mode by default (insecure, deprecated from 3.0).
+    External mode needs an `n8nio/runners` sidecar at the same version. Matters for 3.x
+    and OpenShift.
+- Lesson: when an operator brings third-party instructions, check them against the
+  vendor's docs before writing the recipe, and say which claims are unverified.
+
+### State at close
+- `opencode` is running (the previous brief said stopped); `opencode-lab` stopped.
+  Switching to `n8n` stops `opencode`.
+- The operator generates the key next (`openssl rand -hex 32 | pbcopy`, then
+  `ansible-vault edit .env.local`), loads the vault, and restarts Claude Code.
+
+### Commits (all pushed)
+- `7deb892` / `69fc1ec` from session 4 pushed at session start.
+- `1dc4953` T-PROJ-07: n8n machine profile, pinned run recipe, catalogue entry
+- `b20256b` T-PROJ-07: check n8n recipe against upstream docs
+- Session close commit (this entry and the CLAUDE.md brief).
+
 ## 2026-11-13 — Session 4: default machine removed, T-OPENCODE-04 deferred
 
 ### `podman-machine-default` removed

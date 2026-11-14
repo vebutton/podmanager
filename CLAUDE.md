@@ -120,22 +120,26 @@ question (TODO.md §3).
 > Forward-looking operating context only. Archaeology lives in `docs/session-state.md`.
 > Task state lives in `TODO.md`.
 
-**Last (2026-11-13):** Short planning session, no build work. Removed
-`podman-machine-default` (a test machine; web-terminal probably used it out of
-convenience). Deferred T-OPENCODE-04: OpenCode stays arm64-only (no amd64 GPU host), the
-generic multi-arch script moves to T-PROJ-02. Added T-OPENCODE-11 (OpenCode on OpenShift,
-modelled on an engineering tool, low priority) and an Unscheduled line for Red Hat's
-Validated Patterns utility container. Committed, **not pushed**.
+**Last (2026-11-13, session 5):** New T-PROJ-07: an n8n learning instance (the operator
+attends an n8n event 2026-11-14). Wrote `machines/n8n.conf`, `images/n8n/` (requirements,
+run recipe; upstream image pinned at `2.47.7`, no build) and the catalogue entry, then
+checked the recipe against docs.n8n.io after the operator flagged it came from
+Perplexity. Nothing run yet. All commits pushed.
 
 **Next session — pick up here:**
-1. Cold start: re-read CLAUDE.md and CLAUDE.local.md. `git push` the 2026-11-13 commits
-   if the operator agrees. Both machines (`opencode`, `opencode-lab`) are stopped; start
-   `opencode` only via `scripts/machine-switch.sh`.
-2. T-OPENCODE-05: scripted smoke test, arm64 only (T-OPENCODE-04 deferred 2026-11-13).
+1. Cold start: re-read CLAUDE.md and CLAUDE.local.md. `opencode` is **running**
+   (`opencode-lab` stopped); switching to `n8n` stops it. Switch only via
+   `scripts/machine-switch.sh`.
+2. T-PROJ-07 first (event is 2026-11-14). The operator is adding `N8N_ENCRYPTION_KEY`
+   to the vault and restarting Claude Code from the loaded shell. Check the name is set
+   (never print it), run the Start block in `images/n8n/run.md`, then the acceptance
+   list in `images/n8n/requirements.md`; confirm the recorded digest. Key must be set
+   **before** the first start, or n8n generates its own into the volume.
+3. T-OPENCODE-05: scripted smoke test, arm64 only (T-OPENCODE-04 deferred 2026-11-13).
    It also finishes T-OPENCODE-06 (fail on a missing variable, naming it, never a
    value). The operator's manual run worked, and the operator watches GPU Monitor
    (`CLAUDE.local.md`) as a human cross-check.
-3. After 05 passes: T-OPENCODE-09 (remove `opencode-lab`, only with explicit OK), then
+4. After 05 passes: T-OPENCODE-09 (remove `opencode-lab`, only with explicit OK), then
    T-OPENCODE-07 (push the single-arch arm64 image; `images/podmanager-probe/build.md`
    holds the proven push recipe) and T-PROJ-06 (request handoff file).
 
@@ -150,6 +154,9 @@ Validated Patterns utility container. Committed, **not pushed**.
 - web-terminal has no machine since 2026-11-13. Its `run.sh` bare `podman machine start`
   would now start `opencode` and build into it. Don't run it before T-PROJ-05 gives it a
   profile.
+- n8n after the event: the operator decides whether it's useful. If so, OpenShift is a
+  new item (PVC, Secret for the key, Route, external task runner), not a change to
+  T-PROJ-07.
 
 **Continuity reminders:**
 - Secrets come from the vault-loaded shell (`.env.local`, decrypted with the snippet in
@@ -174,6 +181,10 @@ Validated Patterns utility container. Committed, **not pushed**.
   reference.
 - `podman-machine-default` (a test machine, removed 2026-11-13) probably also hosted
   web-terminal out of convenience. web-terminal has no machine now (T-PROJ-05).
+- Third-party install instructions the operator brings (e.g. from Perplexity): check
+  them against the vendor's docs before writing a recipe, and mark unverified claims.
+- n8n data lives in the podman volume `n8n_data` inside the VM: export it
+  (`images/n8n/run.md`) before any `podman machine rm n8n`.
 - The oMLX model is shared with another project. Keep smoke-test prompts small.
 - podmanager runs on both Apple Silicon hosts; each needs its own `machines/local.env`.
 - Refresh `.atlas/overview.md` at end of session when the project moved. Two markers are
