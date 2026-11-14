@@ -120,43 +120,42 @@ question (TODO.md §3).
 > Forward-looking operating context only. Archaeology lives in `docs/session-state.md`.
 > Task state lives in `TODO.md`.
 
-**Last (2026-11-13, session 5):** New T-PROJ-07: an n8n learning instance (the operator
-attends an n8n event 2026-11-14). Wrote `machines/n8n.conf`, `images/n8n/` (requirements,
-run recipe; upstream image pinned at `2.47.7`, no build) and the catalogue entry, then
-checked the recipe against docs.n8n.io after the operator flagged it came from
-Perplexity. Nothing run yet. All commits pushed.
+**Last (2026-11-13, session 6):** Short session. Recorded the sibling project
+`n8n-sandbox` as a user of the n8n instance (catalogue **Used by** field). Key split
+confirmed: podmanager holds `N8N_ENCRYPTION_KEY`; `n8n-sandbox` holds its own
+`N8N_API_KEY` and reuses the stored oMLX credential. Also wrote up the post-close work
+from session 5 (T-PROJ-07 closed, handoff, inbox/outbox). All commits pushed.
 
 **Next session — pick up here:**
-1. Cold start: re-read CLAUDE.md and CLAUDE.local.md. `opencode` is **running**
-   (`opencode-lab` stopped); switching to `n8n` stops it. Switch only via
-   `scripts/machine-switch.sh`.
-2. T-PROJ-07 first (event is 2026-11-14). The operator is adding `N8N_ENCRYPTION_KEY`
-   to the vault and restarting Claude Code from the loaded shell. Check the name is set
-   (never print it), run the Start block in `images/n8n/run.md`, then the acceptance
-   list in `images/n8n/requirements.md`; confirm the recorded digest. Key must be set
-   **before** the first start, or n8n generates its own into the volume.
-3. T-OPENCODE-05: scripted smoke test, arm64 only (T-OPENCODE-04 deferred 2026-11-13).
-   It also finishes T-OPENCODE-06 (fail on a missing variable, naming it, never a
-   value). The operator's manual run worked, and the operator watches GPU Monitor
-   (`CLAUDE.local.md`) as a human cross-check.
+1. Cold start: re-read CLAUDE.md and CLAUDE.local.md. `n8n` is **running**
+   (`opencode`, `opencode-lab` stopped). Switch only via `scripts/machine-switch.sh`;
+   switching stops n8n, which `n8n-sandbox` depends on (tell the operator).
+2. After the n8n event (2026-11-14): ask the operator whether n8n stays. Decide
+   telemetry (`N8N_DIAGNOSTICS_ENABLED`) and whether to propose an OpenShift item (new
+   ID, not a change to T-PROJ-07).
+3. T-OPENCODE-05: scripted smoke test, arm64 only, on machine `opencode`. It also
+   finishes T-OPENCODE-06 (fail on a missing variable, naming it, never a value). The
+   operator watches GPU Monitor (`CLAUDE.local.md`) as a human cross-check.
 4. After 05 passes: T-OPENCODE-09 (remove `opencode-lab`, only with explicit OK), then
    T-OPENCODE-07 (push the single-arch arm64 image; `images/podmanager-probe/build.md`
-   holds the proven push recipe) and T-PROJ-06 (request handoff file).
+   holds the proven push recipe) and T-PROJ-06 (request handoff file; `images/n8n/
+   handoff.md` is a usable model for the "using" side).
 
 **Open items carried:**
-- Triage sheet v1 (`reminders/`) predates the catalogue/handoff rule; the next update must
-  cover both.
+- Latest triage sheet is v2 (`reminders/`, 2026-11-13). The next one should show
+  T-PROJ-07 closed and must cover the catalogue and the handoff.
 - Whether other GHCR namespaces need their own credentials (T-OPENCODE-07). The single
   `GHCR_*` set works for `vebutton`.
 - Test images on the `opencode` machine: `podmanager-opencode:test`,
   `podmanager-probe:0.1`. The probe pod may still be in the operator's OpenShift
   namespace.
-- web-terminal has no machine since 2026-11-13. Its `run.sh` bare `podman machine start`
-  would now start `opencode` and build into it. Don't run it before T-PROJ-05 gives it a
+- web-terminal has no machine. Its `run.sh` bare `podman machine start` would start the
+  default connection and build into it. Don't run it before T-PROJ-05 gives it a
   profile.
-- n8n after the event: the operator decides whether it's useful. If so, OpenShift is a
-  new item (PVC, Secret for the key, Route, external task runner), not a change to
-  T-PROJ-07.
+- `N8N_API_KEY` untested from podmanager (lives in `n8n-sandbox`); only the 401 without
+  a key is tested. Fine unless `n8n-sandbox` reports a problem.
+- The n8n volume export made during the recreation sits outside the repo; where is not
+  recorded. Ask before relying on it.
 
 **Continuity reminders:**
 - Secrets come from the vault-loaded shell (`.env.local`, decrypted with the snippet in
@@ -185,6 +184,12 @@ Perplexity. Nothing run yet. All commits pushed.
   them against the vendor's docs before writing a recipe, and mark unverified claims.
 - n8n data lives in the podman volume `n8n_data` inside the VM: export it
   (`images/n8n/run.md`) before any `podman machine rm n8n`.
+- After `podman volume import n8n_data`, chown the volume root to `node` (recipe in
+  `images/n8n/run.md`), or n8n exits with `EACCES`.
+- An empty `VOLUMES=""` in a machine profile is not "no volumes": `podman machine init`
+  then shares macOS defaults (`/Users` etc., rw). List the volumes explicitly.
+- Projects using a running instance are in the catalogue's **Used by** field. Check it
+  before stopping, upgrading or recreating that instance.
 - The oMLX model is shared with another project. Keep smoke-test prompts small.
 - podmanager runs on both Apple Silicon hosts; each needs its own `machines/local.env`.
 - Refresh `.atlas/overview.md` at end of session when the project moved. Two markers are

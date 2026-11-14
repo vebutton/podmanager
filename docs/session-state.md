@@ -4,6 +4,68 @@
 > paths, commits, memories banked. The forward-looking brief lives in CLAUDE.md ->
 > Session State. Consult this file on demand when depth is needed.
 
+## 2026-11-13 — Session 6: n8n-sandbox as a user of the instance
+
+### Keys clarified
+- The operator thought they had made a mistake creating `N8N_API_KEY`; they had mixed
+  up the encryption key and the API key. No mistake. The split stands: podmanager holds
+  `N8N_ENCRYPTION_KEY` (vault, set when the container starts); the sibling project
+  `n8n-sandbox` holds its own `N8N_API_KEY`, created in the n8n UI. Neither side needs
+  the other's key.
+- `n8n-sandbox` does not need `OMLX_API_KEY` while it goes through n8n: AI nodes use
+  the stored credential `n8n Assistant model`. It needs its own copy only if its own
+  code calls oMLX directly. Creating a second credential through the API would copy the
+  key, which the handoff rules out.
+- The API key itself is not tested from podmanager (`N8N_API_KEY` is not in this shell;
+  only the 401 without a key was tested).
+
+### Catalogue
+- Entry format gets an optional **Used by** field. The n8n entry lists `n8n-sandbox`
+  (REST API, its own key) and says to tell it before stopping, upgrading or recreating
+  the instance.
+
+### Commits (all pushed)
+- `b4938b1` catalogue: record n8n-sandbox as a user of the n8n instance
+- Session close commit (this entry, the CLAUDE.md brief, `.atlas/overview.md`).
+
+## 2026-11-13 — Session 5, after the close: n8n acceptance, handoff, inbox/outbox
+
+> Work committed after the session 5 close commit (`d27e6eb`) with no close update of
+> its own. Reconstructed from the commits in session 6.
+
+### Acceptance (T-PROJ-07, closed)
+- The operator added `N8N_ENCRYPTION_KEY` to the vault. The recipe ran on machine
+  `n8n`: health and readiness 200; running digest matches the recorded multi-arch
+  index; stored encryption key is the vault key; a workflow and the Assistant
+  credential survive `podman rm` + re-run.
+- Recipe fix: `podman image inspect .Digest` prints the arm64 platform manifest
+  (`1d11…`), not the index (`b4b9…`). Both are now in the catalogue entry.
+- The Assistant points at host oMLX (`host.containers.internal:8000/v1`, credential
+  `n8n Assistant model`). The code sandbox service was skipped.
+
+### Handoff for using projects
+- `images/n8n/handoff.md`: addresses (UI, health, REST API, webhooks), how a using
+  project gets its own API key, what n8n can reach, what's not set up, and rules
+  (podmanager alone manages the machine, container and data; the encryption key stays
+  with podmanager).
+
+### Inbox/outbox replace the default share
+- Found: `VOLUMES=""` in `machines/n8n.conf` passed no `--volume` flags, so
+  `podman machine init` shared its macOS defaults (`/Users`, `/private`,
+  `/var/folders`, read-write). The profile and handoff had wrongly said "no host
+  volumes". Lesson: an empty volume list is not "no volumes" for `podman machine init`.
+- Now two volumes from `N8N_INBOX` / `N8N_OUTBOX` in `machines/local.env`: inbox
+  read-only, outbox read-write, mounted in the container under `~/.n8n-files` (the
+  default `N8N_RESTRICT_FILE_ACCESS_TO` in 2.47.7).
+- Machine recreated, data restored from a volume export. `podman volume import` leaves
+  the volume root owned by root (n8n exits with `EACCES ... crash.journal`); the
+  recipe now adds a `chown -R node:node` step.
+
+### Commits (all pushed)
+- `32b5cde` T-PROJ-07: n8n acceptance passed, close item
+- `7c7b63c` n8n: handoff for projects that use the instance
+- `a69d9c8` n8n: replace podman's default /Users share with an inbox and outbox
+
 ## 2026-11-13 — Session 5: n8n learning instance (T-PROJ-07)
 
 ### Use case

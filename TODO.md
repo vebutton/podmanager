@@ -98,6 +98,9 @@
   in use (one-machine rule unchanged). If it proves useful, OpenShift becomes a new item
   (PVC, Secret for the key, Route), not a change to this one. What it integrates with is
   unknown until then.
+  Used by the sibling project `n8n-sandbox` (REST API, its own `N8N_API_KEY`; see
+  `catalogue.md`). After the event (2026-11-14): operator decides whether n8n stays,
+  and telemetry.
 
 ### OPENCODE
 - **T-OPENCODE-05:** The smoke test must cover:
