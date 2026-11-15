@@ -142,8 +142,6 @@ credential, and isn't used. All commits pushed.
 **Open items carried:**
 - Latest triage sheet is v2 (`reminders/`, 2026-11-13). The next one should show
   T-PROJ-07 closed and the n8n decisions, and must cover the catalogue and the handoff.
-- `n8n-sandbox`'s copy of `images/n8n/handoff.md` is stale (telemetry, backup split,
-  credential correction). The operator copies it across; podmanager doesn't edit it.
 - n8n credential `n8n Assistant model` is a leftover from setup; kept on purpose.
   AI nodes use `oMLX local`.
 - Whether other GHCR namespaces need their own credentials (T-OPENCODE-07). The single

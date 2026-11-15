@@ -36,9 +36,13 @@
   → `/home/node/.n8n` in the container; workflows are rows in `database.sqlite` (plus
   its `-wal` file, so copying the main file alone is not a backup).
 
+- Syncing `n8n-sandbox`'s copy of `images/n8n/handoff.md`: closed by the operator, not
+  tracked by podmanager. podmanager's copy is the current one.
+
 ### Commits (all pushed)
 - `afae186` n8n: kept as a lab instance, telemetry off, backup split, credential fix
-- Session close commit (this entry, the CLAUDE.md brief).
+- Session close commit (this entry, the CLAUDE.md brief), then a follow-up closing the
+  handoff-sync item.
 
 ## 2026-11-13 — Session 6: n8n-sandbox as a user of the instance
 
