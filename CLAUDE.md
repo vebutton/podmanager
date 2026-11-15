@@ -132,9 +132,8 @@ start. All commits pushed.
 1. Cold start: re-read CLAUDE.md and CLAUDE.local.md. `n8n` is **running**
    (`opencode`, `opencode-lab` stopped). Switch only via `scripts/machine-switch.sh`;
    switching stops n8n, which `n8n-sandbox` depends on (tell the operator).
-2. After the n8n event (2026-11-14): ask the operator whether n8n stays. Decide
-   telemetry (`N8N_DIAGNOSTICS_ENABLED`) and whether to propose an OpenShift item (new
-   ID, not a change to T-PROJ-07).
+2. n8n stays and runs while the operator uses it (decided 2026-11-15). Telemetry off.
+   No OpenShift item until a workflow needs one (new ID, not a change to T-PROJ-07).
 3. T-OPENCODE-05: scripted smoke test, arm64 only, on machine `opencode`. It also
    finishes T-OPENCODE-06 (fail on a missing variable, naming it, never a value). The
    operator watches GPU Monitor (`CLAUDE.local.md`) as a human cross-check.
@@ -154,8 +153,6 @@ start. All commits pushed.
 - web-terminal has no machine. Its `run.sh` bare `podman machine start` would start the
   default connection and build into it. Don't run it before T-PROJ-05 gives it a
   profile.
-- `N8N_API_KEY` untested from podmanager (lives in `n8n-sandbox`); only the 401 without
-  a key is tested. Fine unless `n8n-sandbox` reports a problem.
 - The n8n volume export made during the recreation sits outside the repo; where is not
   recorded. Ask before relying on it.
 

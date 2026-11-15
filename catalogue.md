@@ -57,8 +57,9 @@ Private entries go in the gitignored `catalogue.local.md`.
   unlisted UID in group 0.
 
 ### n8n
-- **Status:** running locally, acceptance passed 2026-11-13 (T-PROJ-07). Learning instance
-  to judge whether n8n belongs in the OpenShift lab.
+- **Status:** running locally, acceptance passed 2026-11-13 (T-PROJ-07). Kept as a lab
+  instance (operator, 2026-11-15) and left running while in use. OpenShift waits until a
+  workflow needs it in the cluster. Telemetry off.
 - **Location:** `images/n8n/` (requirements record, run recipe and a handoff for projects
   that use the instance, `handoff.md`; no Containerfile).
 - **What it is:** n8n workflow automation, upstream image used as is. Details:
@@ -75,15 +76,19 @@ Private entries go in the gitignored `catalogue.local.md`.
   manifest: `sha256:1d1113949e99d64ecf8da7f9504d65d083bc4d4404f9f920a31e47e2524410f2`.
 - **Used by:** `n8n-sandbox` (sibling project, since 2026-11-13), through the public REST
   API (`images/n8n/handoff.md`). It holds its own `N8N_API_KEY`, created in the UI;
-  podmanager holds only `N8N_ENCRYPTION_KEY`. Tell it before stopping, upgrading or
-  recreating the instance.
+  podmanager holds only `N8N_ENCRYPTION_KEY`. Confirmed working 2026-11-15: it has its
+  own oMLX credential and runs an AI Agent workflow on the local model. It backs up its
+  workflows into its own repo (REST API); podmanager keeps the volume export, which is
+  the only copy of credentials. Tell it before stopping, upgrading or recreating the
+  instance.
 - **Quirks to check:** credentials depend on `N8N_ENCRYPTION_KEY` from the vault, set
   before the first start. The data volume lives in the VM and is lost with
   `podman machine rm n8n` unless exported. Task runners run in internal mode
   (deprecated from 3.0; external mode needs an `n8nio/runners` sidecar). Secure cookies
-  are on by default: browse via `localhost` (plain http works there). The Assistant
-  reaches oMLX at `host.containers.internal:8000/v1`; the code sandbox service is not set
-  up.
+  are on by default: browse via `localhost` (plain http works there). AI nodes reach
+  oMLX at `host.containers.internal:8000/v1` (credential `oMLX local`). n8n's built-in
+  Assistant is not in use; its credential `n8n Assistant model` is left over from setup.
+  The code sandbox service is not set up.
 
 ## External images
 

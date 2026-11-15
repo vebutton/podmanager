@@ -21,6 +21,7 @@ podman run -d --name n8n \
   -e TZ="$tz" -e GENERIC_TIMEZONE="$tz" \
   -e N8N_ENCRYPTION_KEY \
   -e N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true \
+  -e N8N_DIAGNOSTICS_ENABLED=false \
   -v n8n_data:/home/node/.n8n \
   -v /n8n/inbox:/home/node/.n8n-files/inbox:ro \
   -v /n8n/outbox:/home/node/.n8n-files/outbox \
@@ -32,13 +33,22 @@ paths `N8N_INBOX`, `N8N_OUTBOX` in `machines/local.env`). They sit under
 (`N8N_RESTRICT_FILE_ACCESS_TO`, read from the 2.47.7 code). No `Z`: the inbox share is
 read-only. The outbox is writable as `node` without a user-namespace option; files
 appear on the Mac owned by the operator.
+`N8N_DIAGNOSTICS_ENABLED=false` turns off telemetry to n8n (operator, 2026-11-15; the
+variable is in the 2.47.7 code, `@n8n/config` `diagnostics.config.js`).
 Open `http://localhost:5678`, the address the docs use. Secure cookies are on by default
 (`N8N_SECURE_COOKIE=true`); login over plain http on `localhost` works (2026-11-13). The
 first visit creates the owner account. With no SMTP set up, its email is only a login
 name; a lost password is reset with `podman exec n8n n8n user-management:reset`.
 
-## Connect the local model (Assistant)
-In n8n's "Connect a model" screen, pick "Self-hosted or OpenAI-compatible endpoint":
+## Connect the local model
+The local model is an ordinary OpenAI-compatible credential, used by AI nodes in
+workflows (e.g. AI Agent). n8n's Assistant is a separate built-in agent that builds and
+troubleshoots workflows; the operator doesn't use it (2026-11-15). Its "Connect a model"
+screen made the credential `n8n Assistant model` during T-PROJ-07.
+
+Create it as a new OpenAI credential with the base URL below (how `n8n-sandbox` made
+`oMLX local`), or in the Assistant's "Connect a model" screen ("Self-hosted or
+OpenAI-compatible endpoint"):
 - Base URL `http://host.containers.internal:8000/v1` (oMLX on the host; `localhost` is
   the container itself)
 - API key: the `OMLX_API_KEY` value from the vault; n8n stores it as an encrypted
