@@ -120,31 +120,32 @@ question (TODO.md §3).
 > Forward-looking operating context only. Archaeology lives in `docs/session-state.md`.
 > Task state lives in `TODO.md`.
 
-**Last (2026-11-13, session 6):** Short session. Recorded the sibling project
-`n8n-sandbox` as a user of the n8n instance (catalogue **Used by** field). Key split
-confirmed: podmanager holds `N8N_ENCRYPTION_KEY`; `n8n-sandbox` holds its own
-`N8N_API_KEY` and reuses the stored oMLX credential. Also wrote up the post-close work
-from session 5 (T-PROJ-07 closed, handoff, inbox/outbox). `machine-switch.sh` now
-refuses podman's default shares and checks mounts against the profile before every
-start. All commits pushed.
+**Last (2026-11-15, session 7):** Short session, n8n only. `n8n-sandbox` confirmed
+working (own `oMLX local` credential, AI Agent workflow) and now backs up its workflows
+to its own repo. Decided: n8n stays, telemetry off (container recreated, data intact),
+OpenShift waits. Corrected the docs: n8n's Assistant is a built-in agent, not a
+credential, and isn't used. All commits pushed.
 
 **Next session — pick up here:**
 1. Cold start: re-read CLAUDE.md and CLAUDE.local.md. `n8n` is **running**
-   (`opencode`, `opencode-lab` stopped). Switch only via `scripts/machine-switch.sh`;
-   switching stops n8n, which `n8n-sandbox` depends on (tell the operator).
-2. n8n stays and runs while the operator uses it (decided 2026-11-15). Telemetry off.
-   No OpenShift item until a workflow needs one (new ID, not a change to T-PROJ-07).
-3. T-OPENCODE-05: scripted smoke test, arm64 only, on machine `opencode`. It also
+   (`opencode`, `opencode-lab` stopped). Switch only via `scripts/machine-switch.sh`.
+   The operator is still using n8n: ask before switching, since that stops it and
+   `n8n-sandbox` depends on it.
+2. T-OPENCODE-05: scripted smoke test, arm64 only, on machine `opencode`. It also
    finishes T-OPENCODE-06 (fail on a missing variable, naming it, never a value). The
    operator watches GPU Monitor (`CLAUDE.local.md`) as a human cross-check.
-4. After 05 passes: T-OPENCODE-09 (remove `opencode-lab`, only with explicit OK), then
+3. After 05 passes: T-OPENCODE-09 (remove `opencode-lab`, only with explicit OK), then
    T-OPENCODE-07 (push the single-arch arm64 image; `images/podmanager-probe/build.md`
    holds the proven push recipe) and T-PROJ-06 (request handoff file; `images/n8n/
    handoff.md` is a usable model for the "using" side).
 
 **Open items carried:**
 - Latest triage sheet is v2 (`reminders/`, 2026-11-13). The next one should show
-  T-PROJ-07 closed and must cover the catalogue and the handoff.
+  T-PROJ-07 closed and the n8n decisions, and must cover the catalogue and the handoff.
+- `n8n-sandbox`'s copy of `images/n8n/handoff.md` is stale (telemetry, backup split,
+  credential correction). The operator copies it across; podmanager doesn't edit it.
+- n8n credential `n8n Assistant model` is a leftover from setup; kept on purpose.
+  AI nodes use `oMLX local`.
 - Whether other GHCR namespaces need their own credentials (T-OPENCODE-07). The single
   `GHCR_*` set works for `vebutton`.
 - Test images on the `opencode` machine: `podmanager-opencode:test`,

@@ -4,6 +4,42 @@
 > paths, commits, memories banked. The forward-looking brief lives in CLAUDE.md ->
 > Session State. Consult this file on demand when depth is needed.
 
+## 2026-11-15 — Session 7: n8n settled after the event
+
+### n8n-sandbox confirmed
+- The operator reports `n8n-sandbox` works: it made its own oMLX credential and runs an
+  AI Agent workflow on the local model. Closes the "`N8N_API_KEY` untested" open item.
+- `n8n-sandbox` now backs up its workflows into its own repo via the REST API.
+  podmanager keeps the volume export, which is the only copy of credentials (the API
+  never returns secret values). The handoff rule "ask podmanager for backups" now says
+  *volume* backups.
+
+### Decisions (operator)
+- n8n stays as a lab instance and runs while in use.
+- Telemetry off: `N8N_DIAGNOSTICS_ENABLED=false`, confirmed in the 2.47.7 code
+  (`@n8n/config` `diagnostics.config.js`) before adding it to `images/n8n/run.md`.
+  Container recreated with it: healthz and readiness 200, API 401 without key, the
+  variable reads `false` in the container, 4 workflows and 2 credentials intact, no
+  errors in the log.
+- No OpenShift item until a workflow needs n8n in the cluster.
+
+### Assistant vs credential (correction)
+- The docs conflated n8n's built-in Assistant (an agent that builds and troubleshoots
+  workflows) with the credential its "Connect a model" screen made, `n8n Assistant
+  model`. The operator doesn't use the Assistant. A read-only query of
+  `credentials_entity` showed two OpenAI-type credentials: `n8n Assistant model`
+  (2026-11-14, from T-PROJ-07 setup) and `oMLX local` (made by `n8n-sandbox`, in use).
+  Session 6's advice to reuse `n8n Assistant model` is superseded: AI nodes use
+  `oMLX local`. The leftover credential stays (operator).
+- Where the data lives, explained to the operator: VM disk image on the Mac → volume
+  `n8n_data` in the VM (`/var/home/core/.local/share/containers/storage/volumes/...`)
+  → `/home/node/.n8n` in the container; workflows are rows in `database.sqlite` (plus
+  its `-wal` file, so copying the main file alone is not a backup).
+
+### Commits (all pushed)
+- `afae186` n8n: kept as a lab instance, telemetry off, backup split, credential fix
+- Session close commit (this entry, the CLAUDE.md brief).
+
 ## 2026-11-13 — Session 6: n8n-sandbox as a user of the instance
 
 ### Keys clarified
