@@ -44,7 +44,9 @@ the baked config:
 jq '.provider.omlx.models["gemma-4-12B-it-oQ4e-mtp"] = {name: "gemma 4 12b it oq4e mtp 48k (SSD)", limit: {context: 49152, output: 8192}}' \
   images/opencode/opencode.json > images/opencode/overrides/opencode-ssd.json
 ```
-The Gemma limits copy Qwen's 48k/8k as a conservative guess; check what oMLX allows.
+Gemma is a placeholder showing how an SSD model is added (operator, 2026-11-18); its
+48k/8k limits are copied from Qwen. For a real model, use the id `/v1/models` lists
+and set limits to what oMLX allows for it.
 
 ## Check
 - The model in use is `omlx/Qwen3.5-9B-oQ4e-mtp`. A config the container can't read

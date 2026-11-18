@@ -33,8 +33,8 @@ podmanager pipeline (Track 1).
 - **Run-time override:** mount another config over `/etc/opencode/opencode.json`, e.g.
   `-v /config/opencode-any.json:/etc/opencode/opencode.json:ro`.
   `overrides/opencode-any.json` is the all-providers variant (identical except the cloud
-  provider stays enabled). `overrides/opencode-ssd.json` is local-only plus the SSD model
-  `gemma-4-12B-it-oQ4e-mtp`; the default stays the Qwen model on the Mac's own disk
+  provider stays enabled). `overrides/opencode-ssd.json` is local-only plus an SSD model
+  (`gemma-4-12B-it-oQ4e-mtp`, a placeholder); the default stays the Qwen model on the Mac's own disk
   (operator, 2026-11-18).
 - **OpenShift:** `host.containers.internal` only resolves under Podman on the Mac, so a
   pod in the OpenShift lab always mounts its own config at the same path.
