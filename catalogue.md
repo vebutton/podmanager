@@ -26,8 +26,9 @@ Private entries go in the gitignored `catalogue.local.md`.
 - **Location:** `images/opencode/`. Rebuilt from an existing image in another project
   (path in `CLAUDE.local.md`), which stays as it is.
 - **What it is:** OpenCode coding-agent harness. Talks to a host-side oMLX model server;
-  the model does not run in the container. Local-only config baked, all-providers config
-  as a run-time override. Details: `images/opencode/requirements.md`.
+  the model does not run in the container. Local-only config baked; all-providers and
+  SSD-models configs as run-time overrides. Details: `images/opencode/requirements.md`. Run:
+  `images/opencode/run.md`.
 - **Build:** `node:22-bookworm-slim` base, `opencode-ai` pinned via build arg (1.19.0).
   arm64 only (T-OPENCODE-04 deferred; amd64 in T-OPENCODE-11).
 - **Machine:** `machines/opencode.conf` (machine `opencode`: 2 CPU, 2 GiB, `/workspace`
