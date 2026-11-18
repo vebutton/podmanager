@@ -4,6 +4,57 @@
 > paths, commits, memories banked. The forward-looking brief lives in CLAUDE.md ->
 > Session State. Consult this file on demand when depth is needed.
 
+## 2026-11-18 — Session 8: machine-switch help, OpenCode run recipe
+
+### machine-switch.sh --help
+- Operator asked for it: they kept hunting for how to stop and start machines and their
+  containers gracefully. `-h`/`--help` prints usage, the profiles (from
+  `machines/*.conf`), the running machine (live), and the sequence: `podman stop` each
+  container, `podman machine stop`, start through the script (a bare
+  `podman machine start` skips the read-only remount), then `podman start` the
+  containers. Points at the catalogue's **Used by** and `images/<name>/run.md`. Help to
+  stdout, exit 0; usage errors unchanged (stderr, exit 2). shellcheck isn't installed;
+  `bash -n` clean.
+- Operator tested the sequence on n8n (log in `collateral/`, gitignored): after
+  stop/start the container is `Exited (0)` (no `--restart`), `podman start n8n` brings
+  it back, readiness 200, the last workflow run still listed. Recorded in
+  `images/n8n/run.md`. Correction given to the operator: there is no
+  `podman machine restart`, and data in `n8n_data` survives a stop/start regardless;
+  only the container's restart was in question.
+
+### OpenCode run recipe (part of T-OPENCODE-05)
+- No run command had been recorded (the 2026-11-09 interactive run was not written
+  down). Composed from the run contract: `podman run -it --rm --userns keep-id
+  -e OMLX_API_KEY -v /workspace:/workspace localhost/podmanager-opencode:test`. No `Z` on
+  `/workspace`. Operator confirmed it works. Written as `images/opencode/run.md`;
+  catalogue entry points to it.
+- Operator asked why the model ref is `omlx/...`: OpenCode's `model` is
+  `<provider-id>/<model-id>`. The sample set `Qwen3.5-9B-MLX-4bit`, with no provider and
+  a model its provider didn't define; the provider was named after the host (public
+  repo), so renamed to `omlx`.
+
+### SSD models override
+- `overrides/opencode-ssd.json`: generated with jq from `opencode.json` (local-only)
+  plus `gemma-4-12B-it-oQ4e-mtp`. The Qwen default moved from the SSD to the Mac's disk
+  (operator), so it stays default. Gemma is only a placeholder for "an SSD model"
+  (operator); its 48k/8k limits are copied from Qwen.
+- Tested by the operator: first Gemma request failed because oMLX didn't know the model
+  (assumed: SSD plugged in after oMLX started); after restarting oMLX the same OpenCode
+  session used it. So an unknown model fails only its own request, and oMLX finds
+  models at startup. oMLX's `/v1/models` needs the key (401 without), so model ids
+  couldn't be checked from Claude's shell.
+
+### Machine state at close
+- `opencode` running and default; `n8n` and `opencode-lab` stopped. n8n needs
+  `podman start n8n` after switching back.
+
+### Commits (all pushed)
+- `a64e158` machine-switch: add --help with graceful stop/start steps
+- `b822c43` opencode: add run recipe and SSD-models override
+- `33b4e38` opencode run.md: record the SSD-model behaviour seen in testing
+- `a355fbc` opencode: mark the Gemma SSD model as a placeholder
+- Session close commit (this entry, the CLAUDE.md brief, TODO.md).
+
 ## 2026-11-15 — Session 7: n8n settled after the event
 
 ### n8n-sandbox confirmed

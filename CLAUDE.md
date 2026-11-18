@@ -120,20 +120,20 @@ question (TODO.md §3).
 > Forward-looking operating context only. Archaeology lives in `docs/session-state.md`.
 > Task state lives in `TODO.md`.
 
-**Last (2026-11-15, session 7):** Short session, n8n only. `n8n-sandbox` confirmed
-working (own `oMLX local` credential, AI Agent workflow) and now backs up its workflows
-to its own repo. Decided: n8n stays, telemetry off (container recreated, data intact),
-OpenShift waits. Corrected the docs: n8n's Assistant is a built-in agent, not a
-credential, and isn't used. All commits pushed.
+**Last (2026-11-18, session 8):** `scripts/machine-switch.sh --help` added (profiles,
+running machine, graceful stop/start incl. containers). n8n machine restart tested.
+OpenCode run recipe written and confirmed (`images/opencode/run.md`), plus an
+`opencode-ssd.json` override with a placeholder SSD model. All commits pushed.
 
 **Next session — pick up here:**
-1. Cold start: re-read CLAUDE.md and CLAUDE.local.md. `n8n` is **running**
-   (`opencode`, `opencode-lab` stopped). Switch only via `scripts/machine-switch.sh`.
-   The operator is still using n8n: ask before switching, since that stops it and
-   `n8n-sandbox` depends on it.
-2. T-OPENCODE-05: scripted smoke test, arm64 only, on machine `opencode`. It also
-   finishes T-OPENCODE-06 (fail on a missing variable, naming it, never a value). The
-   operator watches GPU Monitor (`CLAUDE.local.md`) as a human cross-check.
+1. Cold start: re-read CLAUDE.md and CLAUDE.local.md. `opencode` is **running**
+   (`n8n`, `opencode-lab` stopped). Switch only via `scripts/machine-switch.sh`.
+   `n8n-sandbox` can't reach n8n while it is stopped: after switching back to `n8n`,
+   run `podman start n8n` (it doesn't restart by itself).
+2. T-OPENCODE-05: run recipe done; still open is the scripted smoke test (checklist in
+   TODO.md §2), arm64 only, on machine `opencode`, built on `images/opencode/run.md`.
+   It also finishes T-OPENCODE-06 (fail on a missing variable, naming it, never a
+   value). The operator watches GPU Monitor (`CLAUDE.local.md`) as a human cross-check.
 3. After 05 passes: T-OPENCODE-09 (remove `opencode-lab`, only with explicit OK), then
    T-OPENCODE-07 (push the single-arch arm64 image; `images/podmanager-probe/build.md`
    holds the proven push recipe) and T-PROJ-06 (request handoff file; `images/n8n/
@@ -141,7 +141,8 @@ credential, and isn't used. All commits pushed.
 
 **Open items carried:**
 - Latest triage sheet is v2 (`reminders/`, 2026-11-13). The next one should show
-  T-PROJ-07 closed and the n8n decisions, and must cover the catalogue and the handoff.
+  T-PROJ-07 closed, the n8n decisions and the OpenCode run recipe, and must cover the
+  catalogue and the handoff.
 - n8n credential `n8n Assistant model` is a leftover from setup; kept on purpose.
   AI nodes use `oMLX local`.
 - Whether other GHCR namespaces need their own credentials (T-OPENCODE-07). The single
@@ -173,7 +174,13 @@ credential, and isn't used. All commits pushed.
 - Rootless podman can't map OpenShift's high UIDs; test locally with any unlisted UID in
   group 0.
 - The OpenCode image runs with `--userns keep-id`, home `/home/agent` (1777), config baked
-  at `/etc/opencode` outside `/workspace`.
+  at `/etc/opencode` outside `/workspace`. Run recipe: `images/opencode/run.md`.
+- OpenCode model refs are `<provider>/<model-id>` (provider `omlx`). Extra models go in
+  an override under `images/opencode/overrides/` (live via `/config`, no rebuild); the
+  default stays the Qwen model on the Mac's own disk. An unknown model fails only its own
+  request. oMLX finds models at startup: restart it after plugging in the SSD.
+- Containers run without `--restart`: after a machine stop/start they come back
+  `Exited`; `podman start <name>`. `scripts/machine-switch.sh --help` has the sequence.
 - The old `opencode-lab:1.19.0` image bakes a stale Ollama config. Don't use it as a
   reference.
 - `podman-machine-default` (a test machine, removed 2026-11-13) probably also hosted

@@ -115,6 +115,9 @@
   - an override from `/config` (`:ro`, no `Z`) is the config actually loaded
 
   arm64 only. The amd64 run moves to T-OPENCODE-11.
+  Run recipe done 2026-11-18: `images/opencode/run.md` (operator ran it interactively
+  on machine `opencode`; also the `opencode-ssd.json` override with a placeholder SSD
+  model). Still open: the scripted smoke test above.
 - **T-OPENCODE-06:** Variable names and format are set in `.env.local.example`
   (`export KEY="value"` lines). `.env.local` is vault-encrypted in place, and the working
   load snippet is in `.env.local.example` (`ansible-vault decrypt --output -` into a
