@@ -77,6 +77,15 @@ podman stop n8n && podman rm n8n                 # data stays in n8n_data
 ```
 To upgrade, change the tag in Start and run it again. Read the release notes first.
 
+Restarting the machine keeps the container and its data, but the container comes back
+stopped: it runs without `--restart` (tested 2026-11-18):
+```sh
+podman stop n8n && podman machine stop n8n
+scripts/machine-switch.sh n8n
+podman start n8n
+curl -fsS -o /dev/null -w '%{http_code}\n' http://localhost:5678/healthz/readiness  # 200
+```
+
 ## Back up the data
 The volume lives inside the VM, so `podman machine rm n8n` destroys it. Export it first,
 to a host path outside the repo (it holds credentials, encrypted with the vault key):

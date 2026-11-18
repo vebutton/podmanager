@@ -6,15 +6,55 @@
 # Usage: scripts/machine-switch.sh <profile> [--dry-run]
 #   <profile>   name of machines/<profile>.conf
 #   --dry-run   print the podman commands instead of running them
+#   -h, --help  usage, profiles, the running machine, graceful stop/start
 set -euo pipefail
 
-usage() { echo "usage: $0 <profile> [--dry-run]" >&2; exit 2; }
+PODMANAGER_ROOT=$(cd "$(dirname "$0")/.." && pwd)
+
+usage() { echo "usage: $0 <profile> [--dry-run] | --help" >&2; exit 2; }
+help() {
+  local profiles running
+  profiles=$(cd "$PODMANAGER_ROOT/machines" && ls -- *.conf 2>/dev/null | sed 's/\.conf$//' | tr '\n' ' ')
+  running=$(podman machine list --format '{{.Name}} {{.Running}}' 2>/dev/null |
+    awk '$2 == "true" { sub(/\*$/, "", $1); print $1 }')
+  cat <<EOF
+usage: scripts/machine-switch.sh <profile> [--dry-run]
+       scripts/machine-switch.sh -h | --help
+
+Switch to a machine profile: create the machine from machines/<profile>.conf if
+it doesn't exist (mounts are checked against the profile), stop any other
+running machine (only one runs at a time), start the target, make it the
+default connection and remount its :ro volumes read-only.
+
+  <profile>   name of machines/<profile>.conf
+  --dry-run   print the podman commands instead of running them
+  -h, --help  show this help
+
+Profiles: ${profiles:-none}
+Running:  ${running:-none}
+
+Graceful stop (containers first, then the machine):
+  podman ps                             containers on the running machine
+  podman stop <container>               stop each one cleanly, e.g. podman stop n8n
+  podman machine stop <machine>
+
+Start (or switch):
+  scripts/machine-switch.sh <profile>   never a bare podman machine start: it
+                                        skips the read-only remount
+  podman ps -a                          containers come back stopped (no --restart)
+  podman start <container>              e.g. podman start n8n
+
+Switching stops the other machine and everything in it. Check the "Used by"
+field in catalogue.md first. Per-image recipes: images/<name>/run.md
+EOF
+  exit 0
+}
+[[ ${1:-} == -h || ${1:-} == --help ]] && help
 [[ $# -ge 1 && $# -le 2 ]] || usage
 PROFILE=$1
 DRY_RUN=false
 if [[ $# -eq 2 ]]; then [[ $2 == --dry-run ]] || usage; DRY_RUN=true; fi
 
-PODMANAGER_ROOT=$(cd "$(dirname "$0")/.." && pwd)
 PROFILE_FILE=$PODMANAGER_ROOT/machines/$PROFILE.conf
 LOCAL_ENV=$PODMANAGER_ROOT/machines/local.env
 
