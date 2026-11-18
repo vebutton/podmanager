@@ -34,9 +34,10 @@ SSD models (local-only, adds `omlx/gemma-4-12B-it-oQ4e-mtp`; the default stays
   -v /config/opencode-ssd.json:/etc/opencode/opencode.json:ro \
 ```
 Pick the Gemma model in OpenCode's model picker (works with the SSD plugged in,
-2026-11-18). Without the SSD plugged in, the
-container and OpenCode still start; only a prompt to an SSD model fails (expected, not
-yet tested). Edits to `overrides/` apply at the next container start, no rebuild.
+2026-11-18). A model oMLX doesn't know
+fails only its own request; the container and the OpenCode session keep running
+(2026-11-18). oMLX finds models at startup: after plugging in the SSD, restart oMLX,
+then the same OpenCode session can use the SSD model. Edits to `overrides/` apply at the next container start, no rebuild.
 `opencode-ssd.json` is generated from `opencode.json`; regenerate it after changing
 the baked config:
 ```sh
